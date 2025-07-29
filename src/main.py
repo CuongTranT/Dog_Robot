@@ -1,11 +1,17 @@
-from PCA9685_smbus2 import PCA9685
 import time
+from adafruit_servokit import ServoKit
 
-pwm = PCA9685(busnum=1) 
-pwm.set_pwm_freq(50) # set frequency to 50 Hz for SG90 servos
+kit = ServoKit(channels=8)
 
-print("Press Ctrl+C to quit...")
 while True:
-    # set servo to 90 degrees
-    pwm.set_pwm(0, 0, 512) # channel 0, off time 512 (2 ms)
-    time.sleep(1)
+    # Từ 100 đến 180 độ
+    for angle in range(100, 181, 1):
+        kit.servo[4].angle = angle
+        print(f"Servo 4 -> Góc: {angle}°")
+        time.sleep(0.02)
+
+    # Quay ngược lại từ 180 về 100 độ
+    for angle in range(180, 99, -1):
+        kit.servo[4].angle = angle
+        print(f"Servo 4 <- Góc: {angle}°")
+        time.sleep(0.02)
