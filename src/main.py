@@ -6,7 +6,13 @@ kit = ServoKit(channels=8)
 # Góc tư thế ngồi cho 1 chân (dựa trên tính toán)
 servo_angles = {
     4: 40,    # Servo đùi (kênh 4)
-    5: 140    # Servo cẳng chân (kênh 5) → tạo góc ~110° với đùi
+    5: 140,    # Servo cẳng chân (kênh 5) → tạo góc ~110° với đùi
+    6: 40,
+    7: 140,
+    8: 40,
+    9: 140,
+    10: 40,
+    11: 140
 }
 
 def sit_one_leg():
