@@ -5,7 +5,7 @@ kit = ServoKit(channels=8)
 
 while True:
     # Từ 100 đến 180 độ
-    for angle in range(60, 120, 1):
+    for angle in range(0, 180, 1):
         # kit.servo[4].angle = angle
         kit.servo[5].angle = angle
         # print(f"Servo 4 -> Góc: {angle}°")
@@ -13,7 +13,7 @@ while True:
         time.sleep(0.02)
 
     # Quay ngược lại từ 180 về 100 độ
-    for angle in range(120, 60, -1):
+    for angle in range(180, 0, -1):
         # kit.servo[4].angle = angle
         kit.servo[5].angle = angle
         # print(f"Servo 4 <- Góc: {angle}°")
