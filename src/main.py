@@ -70,6 +70,10 @@ Servo quay từ 0° → 180°, dừng 2 giây, rồi quay ngược về 0°
 
 import time
 from adafruit_servokit import ServoKit
+import sys
+import termios
+import tty
+import select
 
 # Khởi tạo ServoKit
 kit = ServoKit(channels=16)
