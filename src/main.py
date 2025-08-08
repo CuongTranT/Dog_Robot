@@ -75,26 +75,13 @@ import termios
 import tty
 import select
 
-# Khởi tạo ServoKit với 16 kênh
 kit = ServoKit(channels=16)
+channel = 1
 
-# Kênh servo sử dụng
-servo_channel = 1
+# Tăng biên độ điều khiển xung cho MG996R
+kit.servo[channel].set_pulse_width_range(min_pulse=500, max_pulse=2500)
 
-# Góc quay
-min_angle = 0
-max_angle = 180
-
-# Quay từ 0 đến 180 độ
-kit.servo[servo_channel].angle = min_angle
-print(f"Quay servo {servo_channel} đến {min_angle}°")
-time.sleep(0.5)
-
-kit.servo[servo_channel].angle = max_angle
-print(f"Quay servo {servo_channel} đến {max_angle}°")
-time.sleep(3)
-
-# Quay từ 180 về 0 độ
-kit.servo[servo_channel].angle = min_angle
-print(f"Quay servo {servo_channel} trở lại {min_angle}°")
-time.sleep(0.5)
+for angle in range(0, 181, 10):
+    kit.servo[channel].angle = angle
+    print(f"Góc hiện tại: {angle}°")
+    time.sleep(0.5)
