@@ -59,4 +59,3 @@ try:
 finally:
     # Khôi phục cấu hình terminal sau khi kết thúc
     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
-aaaaa
