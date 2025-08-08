@@ -75,34 +75,26 @@ import termios
 import tty
 import select
 
-# Khởi tạo ServoKit
+# Khởi tạo ServoKit với 16 kênh
 kit = ServoKit(channels=16)
 
-# Sử dụng servo kênh 1
+# Kênh servo sử dụng
 servo_channel = 1
 
-def main():
-    print("Điều khiển servo kênh 1")
-    print("Quay từ 0° → 180°")
-    
-    # Quay từ 0 đến 180 độ
-    for angle in range(0, 181):
-        kit.servo[servo_channel].angle = angle
-        print(f"Góc: {angle}°")
-        time.sleep(0.02)  # Quay mượt
-    
-    print("Dừng 2 giây...")
-    time.sleep(2)
-    
-    print("Quay ngược về 180° → 0°")
-    
-    # Quay từ 180 về 0 độ
-    for angle in range(180, -1, -1):
-        kit.servo[servo_channel].angle = angle
-        print(f"Góc: {angle}°")
-        time.sleep(0.02)
-    
-    print("Hoàn thành!")
+# Góc quay
+min_angle = 0
+max_angle = 180
 
-if __name__ == "__main__":
-    main()
+# Quay từ 0 đến 180 độ
+kit.servo[servo_channel].angle = min_angle
+print(f"Quay servo {servo_channel} đến {min_angle}°")
+time.sleep(0.5)
+
+kit.servo[servo_channel].angle = max_angle
+print(f"Quay servo {servo_channel} đến {max_angle}°")
+time.sleep(3)
+
+# Quay từ 180 về 0 độ
+kit.servo[servo_channel].angle = min_angle
+print(f"Quay servo {servo_channel} trở lại {min_angle}°")
+time.sleep(0.5)
