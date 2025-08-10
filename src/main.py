@@ -8,6 +8,6 @@ kit.servo[0].set_pulse_width_range(600, 2400)
 kit.servo[1].set_pulse_width_range(600, 2400)
 
 # Gán góc:
-kit.servo[0].angle = 180   # độ
-kit.servo[1].angle = 180   # độ
+kit.servo[0].angle =  180  # độ
+kit.servo[1].angle =  120  # độ
 print("CH0=45°, CH1=120°")
