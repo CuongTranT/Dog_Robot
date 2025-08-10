@@ -36,4 +36,4 @@ def sit_left_leg(alpha_deg=30.0):
 
 if __name__ == "__main__":
     # Ví dụ: 'đường đỏ' nghiêng 30° so với phương thẳng đứng
-    sit_left_leg(alpha_deg=60.0)
+    sit_left_leg(alpha_deg=90.0)
