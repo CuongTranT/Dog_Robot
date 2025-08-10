@@ -17,7 +17,7 @@ KNEE2_OFFSET, KNEE2_SIGN = 90.0, +1   # kênh 2
 
 # Hip giữ 0°, nhưng có OFFSET riêng để đúng cơ khí (SIGN chỉ dùng nếu bạn muốn đảo chiều sau này)
 HIP1_OFFSET, HIP1_SIGN = 0.0, +1      # kênh 1
-HIP3_OFFSET, HIP3_SIGN = 30.0, +1      # kênh 3
+HIP3_OFFSET, HIP3_SIGN = 15.0, +1      # kênh 3
 
 # PWM range (chỉnh theo servo của bạn, ví dụ MG996R thường 500..2500 µs)
 PULSE_MIN, PULSE_MAX = 500, 2500
