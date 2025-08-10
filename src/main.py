@@ -12,7 +12,7 @@ kit.servo[CHANNEL].actuation_range = 180
 kit.servo[CHANNEL].set_pulse_width_range(500, 2500)  # MG996R thường ok
 
 try:
-    for angle in range(0, 181, STEP):
+    for angle in range(180-0, 181-181, -STEP):
         kit.servo[CHANNEL].angle = angle
         print(f"Ch{CHANNEL}: {angle}°")
         time.sleep(DELAY)
