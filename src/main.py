@@ -4,11 +4,11 @@ from adafruit_servokit import ServoKit
 # ===== Nhóm kênh =====
 RIGHT_KNEE = [0, 2]      # servo 1 (cẳng) bên phải
 RIGHT_HIP  = [1, 3]      # servo 2 (đùi)  bên phải
-LEFT_KNEE  = [4, 6]      # servo 1 (cẳng) bên trái = 180 - phải
-LEFT_HIP   = [5, 7]      # servo 2 (đùi)  bên trái = 180 - phải
+LEFT_KNEE  = [4, 6]      # servo 1 (cẳng) bên trái  (== phải)
+LEFT_HIP   = [5, 7]      # servo 2 (đùi)  bên trái  (== phải)
 
-# Map mirror: kênh trái -> kênh phải tương ứng
-MIRROR_PAIR = {4:0, 6:2, 5:1, 7:3}
+# Map: kênh trái -> kênh phải tương ứng
+PAIR = {4:0, 6:2, 5:1, 7:3}
 
 kit = ServoKit(channels=16)
 for ch in RIGHT_KNEE + RIGHT_HIP + LEFT_KNEE + LEFT_HIP:
@@ -19,9 +19,9 @@ for ch in RIGHT_KNEE + RIGHT_HIP + LEFT_KNEE + LEFT_HIP:
 L1 = 100.0
 L2 = 100.0
 
-# ===== Offset & chiều quay (áp cho kênh PHẢI; TRÁI = 180 - PHẢI) =====
+# ===== Offset & chiều quay (áp cho kênh PHẢI; trái sẽ copy y nguyên) =====
 OFFSET = {0:90.0, 1:90.0, 2:90.0, 3:90.0}
-SIGN   = {0:+1.0, 1:+1.0, 2:+1.0, 3:+1.0}  # nếu kênh nào quay ngược mũi tên -> đổi sang -1
+SIGN   = {0:+1.0, 1:+1.0, 2:+1.0, 3:+1.0}  # nếu kênh nào quay ngược -> đổi dấu kênh đó
 
 def clamp(x, lo, hi): return max(lo, min(hi, x))
 
@@ -48,26 +48,23 @@ def lie_pose(height_mm=70.0, epsilon_mm=4.0, settle=0.4):
     hip_joint_deg  = math.degrees(th1)
     knee_joint_deg = math.degrees(th2)
 
-    # Tính góc SERVO cho các kênh PHẢI (áp offset/sign riêng từng kênh)
+    # Ghi PHẢI (có OFFSET/SIGN riêng)
     right_angles = {}
     for ch in RIGHT_HIP:
-        right_angles[ch] = clamp(OFFSET[ch] + SIGN[ch]*hip_joint_deg, 0, 180)
-        kit.servo[ch].angle = right_angles[ch]
+        a = clamp(OFFSET[ch] + SIGN[ch]*hip_joint_deg, 0, 180)
+        right_angles[ch] = a
+        kit.servo[ch].angle = a
     for ch in RIGHT_KNEE:
-        right_angles[ch] = clamp(OFFSET[ch] + SIGN[ch]*knee_joint_deg, 0, 180)
-        kit.servo[ch].angle = right_angles[ch]
+        a = clamp(OFFSET[ch] + SIGN[ch]*knee_joint_deg, 0, 180)
+        right_angles[ch] = a
+        kit.servo[ch].angle = a
 
-    # Gán TRÁI = 180 - PHẢI (theo cặp MIRROR_PAIR)
-    for ch_left, ch_right in MIRROR_PAIR.items():
-        val = clamp(180.0 - right_angles[ch_right], 0, 180)
-        kit.servo[ch_left].angle = val
+    # ===== MIRROR MỚI: TRÁI = PHẢI (KHÔNG 180 - GÓC) =====
+    for ch_left, ch_right in PAIR.items():
+        kit.servo[ch_left].angle = right_angles[ch_right]
 
     time.sleep(settle)
-    print("Lie pose set. Right(H,K): "
-          f"{right_angles[1]:.1f},{right_angles[0]:.1f} | "
-          "Left(H,K): "
-          f"{180-right_angles[1]:.1f},{180-right_angles[0]:.1f}")
+    print("Lie pose set. Copied right → left (no 180-).")
 
 if __name__ == "__main__":
-    # Ví dụ: h=70mm, duỗi gần thẳng (ε=4mm)
     lie_pose(height_mm=70.0, epsilon_mm=4.0)
