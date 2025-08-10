@@ -21,7 +21,7 @@ HIP3_TARGET = 0.0   # deg, mục tiêu cơ học cho CH3
 # =========================================================
 # BÊN PHẢI (4..7) — TÙY CHỈNH ĐỘC LẬP (không mirror)
 # =========================================================
-alpha_deg4 = 0.0   # knee CH4 (pair C)
+alpha_deg4 = 30.0   # knee CH4 (pair C)
 alpha_deg6 = 0.0   # knee CH6 (pair D)
 
 KNEE4_OFFSET, KNEE4_SIGN = 90.0, +1   # CH4
