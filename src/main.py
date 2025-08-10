@@ -1,87 +1,54 @@
-# import time
-# import sys
-# import termios
-# import tty
-# import select
-# from adafruit_servokit import ServoKit
-
-# kit = ServoKit(channels=8)
-
-# sit_pose = {
-#     0: 40, 1: 140,
-#     2: 40, 3: 140,
-#     4: 40, 5: 140,
-#     6: 40, 7: 140
-# }
-
-# stand_pose = {
-#     0: 90, 1: 95,
-#     2: 90, 3: 95,
-#     4: 90, 5: 95,
-#     6: 90, 7: 95
-# }
-
-# def apply_pose(pose_dict):
-#     for ch, angle in pose_dict.items():
-#         kit.servo[ch].angle = angle
-#         print(f"Servo {ch} → {angle}°")
-#         time.sleep(0.02)
-
-# def get_key(timeout=0.1):
-#     # Đọc phím không blocking từ stdin
-#     dr, dw, de = select.select([sys.stdin], [], [], timeout)
-#     if dr:
-#         return sys.stdin.read(1)
-#     return None
-
-# # Cấu hình terminal để đọc 1 ký tự mỗi lần
-# old_settings = termios.tcgetattr(sys.stdin)
-# tty.setcbreak(sys.stdin.fileno())
-
-# try:
-#     print("Nhấn [w] để đứng | [s] để ngồi | [q] để thoát")
-
-#     apply_pose(sit_pose)  # Khởi động ở trạng thái ngồi
-
-#     while True:
-#         key = get_key()
-#         if key == 'w':
-#             print("Chuyển sang tư thế ĐỨNG")
-#             apply_pose(stand_pose)
-#         elif key == 's':
-#             print("Chuyển sang tư thế NGỒI")
-#             apply_pose(sit_pose)
-#         elif key == 'q':
-#             print("Thoát chương trình.")
-#             break
-#         time.sleep(0.05)
-
-# finally:
-#     # Khôi phục cấu hình terminal sau khi kết thúc
-#     termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
-
-
-
-#!/usr/bin/env python3
-"""
-Code điều khiển servo motor kênh 1
-Servo quay từ 0° → 180°, dừng 2 giây, rồi quay ngược về 0°
-"""
-
-import time
+import math, time
 from adafruit_servokit import ServoKit
-import sys
-import termios
-import tty
-import select
+
+# ===== Kênh PCA9685 =====
+KNEE_CH = 0   # servo 1 (cẳng)
+HIP_CH  = 1   # servo 2 (đùi)
 
 kit = ServoKit(channels=16)
-channel = 1
+for ch in [KNEE_CH, HIP_CH]:
+    kit.servo[ch].actuation_range = 180
+    kit.servo[ch].set_pulse_width_range(500, 2500)
 
-# Tăng biên độ điều khiển xung cho MG996R
-kit.servo[channel].set_pulse_width_range(min_pulse=500, max_pulse=2500)
+# ===== Hình học (mm) =====
+L1 = 100.0   # đùi
+L2 = 100.0   # cẳng
 
-for angle in range(0, 181, 10):
-    kit.servo[channel].angle = angle
-    print(f"Góc hiện tại: {angle}°")
-    time.sleep(0.5)
+# ===== Hiệu chuẩn cơ khí (chỉnh sau khi bạn test chiều quay) =====
+OFFSET = {HIP_CH: 90.0, KNEE_CH: 90.0}
+SIGN   = {HIP_CH: +1.0, KNEE_CH: +1.0}   # nếu quay ngược mũi tên -> đổi dấu khớp đó
+
+def clamp(x, lo, hi): 
+    return max(lo, min(hi, x))
+
+def ik_2link(x, z):
+    """Trả về (θ_hip, θ_knee) rad; nghiệm gập gối."""
+    r2 = x*x + z*z
+    # Miền với tới: |L1-L2| <= r <= L1+L2
+    r = math.sqrt(r2)
+    if not (abs(L1 - L2) <= r <= (L1 + L2)):
+        raise ValueError(f"Out of reach: r={r:.1f} mm")
+    c2 = clamp((r2 - L1*L1 - L2*L2) / (2*L1*L2), -1.0, 1.0)
+    th2 = math.acos(c2)  # 0 (duỗi thẳng) .. pi (gập mạnh)
+    th1 = math.atan2(z, x) - math.atan2(L2*math.sin(th2), L1 + L2*math.cos(th2))
+    return th1, th2
+
+def to_servo_deg(rad, ch):
+    return OFFSET[ch] + SIGN[ch] * math.degrees(rad)
+
+def set_foot(x_mm, z_mm, settle=0.4):
+    th1, th2 = ik_2link(x_mm, z_mm)
+    hip_deg  = to_servo_deg(th1, HIP_CH)
+    knee_deg = to_servo_deg(th2, KNEE_CH)
+    kit.servo[HIP_CH].angle  = clamp(hip_deg,  0, 180)
+    kit.servo[KNEE_CH].angle = clamp(knee_deg, 0, 180)
+    time.sleep(settle)
+    print(f"Lie pose -> HIP={hip_deg:.1f}°, KNEE={knee_deg:.1f}°  (x={x_mm}mm, z={z_mm}mm)")
+
+def lie_right_leg(x=20.0, z=-40.0):
+    """Đặt tư thế nằm cho chân phải (bàn chân gập sát vào thân)."""
+    set_foot(x, z)
+
+if __name__ == "__main__":
+    # Tư thế nằm (có thể thay x,z theo ý bạn)
+    lie_right_leg(x=20.0, z=-40.0)
