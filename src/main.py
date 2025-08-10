@@ -1,17 +1,16 @@
-import math, time
+import math, time, sys, termios, tty, select
 from adafruit_servokit import ServoKit
 
-# ===== Nhóm kênh =====
-RIGHT_KNEE = [0, 2]      # servo 1 (cẳng) bên phải
-RIGHT_HIP  = [1, 3]      # servo 2 (đùi)  bên phải
-LEFT_KNEE  = [4, 6]      # servo 1 (cẳng) bên trái  (== phải)
-LEFT_HIP   = [5, 7]      # servo 2 (đùi)  bên trái  (== phải)
+# ===== Kênh =====
+RIGHT_KNEE = [0, 2]
+RIGHT_HIP  = [1, 3]
+LEFT_KNEE  = [4, 6]
+LEFT_HIP   = [5, 7]
+ALL_CH = RIGHT_KNEE + RIGHT_HIP + LEFT_KNEE + LEFT_HIP
 
-# Map: kênh trái -> kênh phải tương ứng
-PAIR = {4:0, 6:2, 5:1, 7:3}
-
+# ===== Servo =====
 kit = ServoKit(channels=16)
-for ch in RIGHT_KNEE + RIGHT_HIP + LEFT_KNEE + LEFT_HIP:
+for ch in ALL_CH:
     kit.servo[ch].actuation_range = 180
     kit.servo[ch].set_pulse_width_range(500, 2500)
 
@@ -19,9 +18,16 @@ for ch in RIGHT_KNEE + RIGHT_HIP + LEFT_KNEE + LEFT_HIP:
 L1 = 100.0
 L2 = 100.0
 
-# ===== Offset & chiều quay (áp cho kênh PHẢI; trái sẽ copy y nguyên) =====
-OFFSET = {0:90.0, 1:90.0, 2:90.0, 3:90.0}
-SIGN   = {0:+1.0, 1:+1.0, 2:+1.0, 3:+1.0}  # nếu kênh nào quay ngược -> đổi dấu kênh đó
+# ===== Hiệu chuẩn (chỉnh theo thực tế của bạn) =====
+OFFSET = {ch: 90.0 for ch in ALL_CH}
+SIGN   = {ch: +1.0 for ch in ALL_CH}   # kênh nào quay ngược mũi tên -> đặt -1
+
+# ===== Pose định nghĩa bằng (x,z) =====
+STAND_X, STAND_Z = 50.0, -160.0
+SIT_X,   SIT_Z   = 40.0,  -80.0
+
+# trạng thái hiện tại để nội suy mượt
+cur_x, cur_z = None, None
 
 def clamp(x, lo, hi): return max(lo, min(hi, x))
 
@@ -31,40 +37,63 @@ def ik_2link(x, z):
     if not (abs(L1-L2) <= r <= (L1+L2)):
         raise ValueError(f"Out of reach: r={r:.1f} mm")
     c2 = clamp((r2 - L1*L1 - L2*L2) / (2*L1*L2), -1.0, 1.0)
-    th2 = math.acos(c2)  # 0=duỗi, tăng lên=gập
+    th2 = math.acos(c2)  # 0=duỗi thẳng
     th1 = math.atan2(z, x) - math.atan2(L2*math.sin(th2), L1 + L2*math.cos(th2))
-    return th1, th2
+    return th1, th2  # hip, knee (rad)
 
-def lie_pose(height_mm=70.0, epsilon_mm=4.0, settle=0.4):
-    # Tính (x,z) cho tư thế nằm (gần duỗi thẳng)
-    r = L1 + L2 - epsilon_mm
-    if height_mm > r:
-        raise ValueError("height_mm quá lớn so với tầm với khi duỗi thẳng.")
-    x = math.sqrt(r*r - height_mm*height_mm)
-    z = -height_mm
+def write_leg_group(hip_deg, knee_deg, hips, knees):
+    for ch in hips:
+        kit.servo[ch].angle = clamp(OFFSET[ch] + SIGN[ch]*hip_deg, 0, 180)
+    for ch in knees:
+        kit.servo[ch].angle = clamp(OFFSET[ch] + SIGN[ch]*knee_deg, 0, 180)
 
-    # IK → góc khớp (rad)
-    th1, th2 = ik_2link(x, z)
-    hip_joint_deg  = math.degrees(th1)
-    knee_joint_deg = math.degrees(th2)
+def set_pose_all(x_mm, z_mm, steps=30, dt=0.02):
+    global cur_x, cur_z
+    if cur_x is None or cur_z is None:
+        cur_x, cur_z = x_mm, z_mm  # lần đầu đặt thẳng
 
-    # Ghi PHẢI (có OFFSET/SIGN riêng)
-    right_angles = {}
-    for ch in RIGHT_HIP:
-        a = clamp(OFFSET[ch] + SIGN[ch]*hip_joint_deg, 0, 180)
-        right_angles[ch] = a
-        kit.servo[ch].angle = a
-    for ch in RIGHT_KNEE:
-        a = clamp(OFFSET[ch] + SIGN[ch]*knee_joint_deg, 0, 180)
-        right_angles[ch] = a
-        kit.servo[ch].angle = a
+    for i in range(1, steps+1):
+        xi = cur_x + (x_mm - cur_x)*i/steps
+        zi = cur_z + (z_mm - cur_z)*i/steps
+        th1, th2 = ik_2link(xi, zi)
+        hip_deg  = math.degrees(th1)
+        knee_deg = math.degrees(th2)
+        # PHẢI
+        write_leg_group(hip_deg, knee_deg, RIGHT_HIP, RIGHT_KNEE)
+        # TRÁI = copy PHẢI (không 180 - góc)
+        write_leg_group(hip_deg, knee_deg, LEFT_HIP, LEFT_KNEE)
+        time.sleep(dt)
 
-    # ===== MIRROR MỚI: TRÁI = PHẢI (KHÔNG 180 - GÓC) =====
-    for ch_left, ch_right in PAIR.items():
-        kit.servo[ch_left].angle = right_angles[ch_right]
+    cur_x, cur_z = x_mm, z_mm
 
-    time.sleep(settle)
-    print("Lie pose set. Copied right → left (no 180-).")
+def pose_stand():
+    set_pose_all(STAND_X, STAND_Z)
+
+def pose_sit():
+    set_pose_all(SIT_X, SIT_Z)
+
+# ===== Bàn phím: w = đứng, s = ngồi, q = thoát =====
+def kbhit(timeout=0.1):
+    dr, _, _ = select.select([sys.stdin], [], [], timeout)
+    return sys.stdin.read(1) if dr else None
 
 if __name__ == "__main__":
-    lie_pose(height_mm=70.0, epsilon_mm=4.0)
+    print("Controls:  w=Stand,  s=Sit,  q=Quit")
+    old = termios.tcgetattr(sys.stdin)
+    try:
+        tty.setcbreak(sys.stdin.fileno())
+        pose_sit()  # khởi động: ngồi
+        while True:
+            c = kbhit(0.1)
+            if not c: 
+                continue
+            if c.lower() == 'w':
+                pose_stand()
+                print("-> Stand")
+            elif c.lower() == 's':
+                pose_sit()
+                print("-> Sit")
+            elif c.lower() == 'q':
+                break
+    finally:
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old)
