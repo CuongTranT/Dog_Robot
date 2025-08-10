@@ -28,7 +28,7 @@ SIGN   = {0:+1.0, 1:+1.0, 2:+1.0, 3:+1.0}   # kênh phải nào quay ngược ->
 
 # ===== Pose (x,z) =====
 STAND_X, STAND_Z = 50.0, -160.0
-SIT_X,   SIT_Z   = 40.0,  -80.0
+SIT_X,   SIT_Z   = 100,  -100.0
 
 cur_x, cur_z = None, None
 
