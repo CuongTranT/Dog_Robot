@@ -8,7 +8,7 @@ kit = ServoKit(channels=16)
 # ---------------------------------------------------------
 # Góc 'đường đỏ' so với phương thẳng đứng đi xuống (độ)
 alpha_deg0 = 90.0   # cho knee kênh 0  (cặp A)
-alpha_deg2 = 60.0   # cho knee kênh 2  (cặp B)
+alpha_deg2 = 80.0   # cho knee kênh 2  (cặp B)
 
 # Offset & chiều cho từng kênh (độc lập)
 # Knee: servo_angle = KNEE_OFFSET + KNEE_SIGN * (-180 + 2*alpha)
