@@ -1,21 +1,18 @@
-# set_angles.py
+# start_mode.py
 from adafruit_servokit import ServoKit
 
-kit = ServoKit(channels=16)
+# Góc khởi tạo (độ) cho các kênh 0..7
+INIT_ANGLES = [120, 180, 110, 180, 70, 20, 85, 20]
 
-# Hiệu chuẩn dải xung (đổi nếu cần)
-kit.servo[0].set_pulse_width_range(600, 2400)
-kit.servo[1].set_pulse_width_range(600, 2400)
+# Biên độ xung cho servo (điều chỉnh nếu cần)
+MIN_US, MAX_US = 600, 2400
 
-# Gán góc:
-kit.servo[0].angle =  70  # độ
-kit.servo[1].angle =  85  # độ
-print("CH0=45°, CH1=120°")
-#kenh 0: 120 độ
-#kenh 1: 180 độ
-#kenh 2: 110 độ
-#kenh 3: 180 độ
-#kenh 4: 70 độ
-#kenh 5: 20 độ
-#kenh 6: 70 độ
-#kenh 7: 20 độ
+def start_mode():
+    kit = ServoKit(channels=16)
+    for ch in range(8):
+        kit.servo[ch].set_pulse_width_range(MIN_US, MAX_US)
+        kit.servo[ch].angle = INIT_ANGLES[ch]
+    print("Applied start pose:", INIT_ANGLES)
+
+if __name__ == "__main__":
+    start_mode()
