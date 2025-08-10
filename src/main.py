@@ -26,10 +26,10 @@ alpha_deg6 = 0.0   # knee CH6 (pair D)
 
 KNEE4_OFFSET, KNEE4_SIGN = 90.0, +1   # CH4
 KNEE6_OFFSET, KNEE6_SIGN = 90.0, +1   # CH6
-HIP5_OFFSET,  HIP5_SIGN  = 0.0,  +1   # CH5
+HIP5_OFFSET,  HIP5_SIGN  = 30.0,  +1   # CH5
 HIP7_OFFSET,  HIP7_SIGN  = 0.0,  +1   # CH7
 
-HIP5_TARGET = 200.0   # deg, mục tiêu cơ học cho CH5
+HIP5_TARGET = 180.0   # deg, mục tiêu cơ học cho CH5
 HIP7_TARGET = 180.0   # deg, mục tiêu cơ học cho CH7
 
 # =========================================================
