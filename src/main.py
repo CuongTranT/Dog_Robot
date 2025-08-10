@@ -2,7 +2,7 @@
 from adafruit_servokit import ServoKit
 
 # Góc khởi tạo (độ) cho các kênh 0..7
-INIT_ANGLES = [140, 180, 110, 180, 70, 20, 85, 20]
+INIT_ANGLES = [100, 180, 110, 180, 70, 20, 85, 20]
 
 # Biên độ xung cho servo (điều chỉnh nếu cần)
 MIN_US, MAX_US = 600, 2400
