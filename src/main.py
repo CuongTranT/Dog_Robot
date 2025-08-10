@@ -1,39 +1,59 @@
-import math
+import time
 from adafruit_servokit import ServoKit
 
 kit = ServoKit(channels=16)
 
-KNEE_CH = 0   # servo 1 (kênh 0)
-HIP_CH  = 1   # servo 2 (kênh 1)
+# ---------------------------------------------------------
+# THAM SỐ BẠN CHỈNH
+# ---------------------------------------------------------
+# Góc 'đường đỏ' so với phương thẳng đứng đi xuống (độ)
+alpha_deg0 = 30.0   # cho knee kênh 0  (cặp A)
+alpha_deg2 = 30.0   # cho knee kênh 2  (cặp B)
 
-# PWM range (chỉnh theo servo của bạn)
-for ch in (KNEE_CH, HIP_CH):
-    kit.servo[ch].actuation_range = 180
-    kit.servo[ch].set_pulse_width_range(500, 2500)
+# Offset & chiều cho từng kênh (độc lập)
+# Knee: servo_angle = KNEE_OFFSET + KNEE_SIGN * (-180 + 2*alpha)
+KNEE0_OFFSET, KNEE0_SIGN = 90.0, +1   # kênh 0
+KNEE2_OFFSET, KNEE2_SIGN = 90.0, +1   # kênh 2
 
-# ---- Mapping nhanh cho kênh 0 (bạn chỉnh 2 line này nếu lệch) ----
-K0_SIGN   = +1    # nếu quay ngược chiều mong muốn, đổi thành -1
-K0_OFFSET = 90.0  # nếu zero lệch, tăng/giảm offset này
+# Hip giữ 0°, nhưng có OFFSET riêng để đúng cơ khí (SIGN chỉ dùng nếu bạn muốn đảo chiều sau này)
+HIP1_OFFSET, HIP1_SIGN = 0.0, +1      # kênh 1
+HIP3_OFFSET, HIP3_SIGN = 0.0, +1      # kênh 3
 
-def clamp(a, lo=0.0, hi=180.0): 
-    return max(lo, min(hi, a))
+# PWM range (chỉnh theo servo của bạn, ví dụ MG996R thường 500..2500 µs)
+PULSE_MIN, PULSE_MAX = 500, 2500
+# ---------------------------------------------------------
 
-def knee_servo_from_alpha(alpha_deg):
-    """
-    alpha_deg: góc 'đường đỏ' so với phương thẳng đứng đi xuống (độ).
-               Ví dụ 0: thẳng đứng, 30: nghiêng về trước 30°.
-    Trả về góc servo cho kênh 0.
-    """
-    theta_knee_deg = -180.0 + 2.0 * alpha_deg   # IK: θ2 = -180 + 2α
-    servo_deg = K0_OFFSET + K0_SIGN * theta_knee_deg
-    return clamp(servo_deg)
+# Kênh
+KNEE0, HIP1 = 0, 1   # cặp A
+KNEE2, HIP3 = 2, 3   # cặp B
 
-def sit_left_leg(alpha_deg=30.0):
-    """Đặt tư thế ngồi: hip (kênh 1) = 0°, knee (kênh 0) theo đường đỏ."""
-    kit.servo[HIP_CH].angle  = clamp(0.0)                 # giữ 0°
-    kit.servo[KNEE_CH].angle = knee_servo_from_alpha(alpha_deg)
-    print(f"Sit: alpha={alpha_deg:.1f}°  -> knee_servo={kit.servo[KNEE_CH].angle:.1f}°, hip=0°")
+def clamp(x, lo=0.0, hi=180.0): 
+    return max(lo, min(hi, x))
+
+def knee_servo_from_alpha(alpha_deg, offset, sign):
+    """IK: hip=0°, L1=L2 => theta_knee = -180 + 2*alpha (độ) -> áp offset/sign kênh."""
+    theta_knee = -180.0 + 2.0*alpha_deg
+    return clamp(offset + sign * theta_knee)
+
+def init_channels():
+    for ch in (KNEE0, HIP1, KNEE2, HIP3):
+        kit.servo[ch].actuation_range = 180
+        kit.servo[ch].set_pulse_width_range(PULSE_MIN, PULSE_MAX)
+
+def apply_pair_A():
+    # Hip kênh 1 giữ 0° cơ học -> servo = HIP1_OFFSET (+ SIGN*0)
+    kit.servo[HIP1].angle  = clamp(HIP1_OFFSET + HIP1_SIGN * 0.0)
+    # Knee kênh 0 theo alpha_deg0
+    kit.servo[KNEE0].angle = knee_servo_from_alpha(alpha_deg0, KNEE0_OFFSET, KNEE0_SIGN)
+    print(f"A[0,1]: alpha0={alpha_deg0:.1f}° -> knee0={kit.servo[KNEE0].angle:.1f}°, hip1={kit.servo[HIP1].angle:.1f}°")
+
+def apply_pair_B():
+    kit.servo[HIP3].angle  = clamp(HIP3_OFFSET + HIP3_SIGN * 0.0)
+    kit.servo[KNEE2].angle = knee_servo_from_alpha(alpha_deg2, KNEE2_OFFSET, KNEE2_SIGN)
+    print(f"B[2,3]: alpha2={alpha_deg2:.1f}° -> knee2={kit.servo[KNEE2].angle:.1f}°, hip3={kit.servo[HIP3].angle:.1f}°")
 
 if __name__ == "__main__":
-    # Ví dụ: 'đường đỏ' nghiêng 30° so với phương thẳng đứng
-    sit_left_leg(alpha_deg=90.0)
+    init_channels()
+    apply_pair_A()
+    time.sleep(0.3)
+    apply_pair_B()
