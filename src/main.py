@@ -7,8 +7,8 @@ kit = ServoKit(channels=16)
 # THAM SỐ BẠN CHỈNH
 # ---------------------------------------------------------
 # Góc 'đường đỏ' so với phương thẳng đứng đi xuống (độ)
-alpha_deg0 = 30.0   # cho knee kênh 0  (cặp A)
-alpha_deg2 = 30.0   # cho knee kênh 2  (cặp B)
+alpha_deg0 = 90.0   # cho knee kênh 0  (cặp A)
+alpha_deg2 = 90.0   # cho knee kênh 2  (cặp B)
 
 # Offset & chiều cho từng kênh (độc lập)
 # Knee: servo_angle = KNEE_OFFSET + KNEE_SIGN * (-180 + 2*alpha)
@@ -17,7 +17,7 @@ KNEE2_OFFSET, KNEE2_SIGN = 90.0, +1   # kênh 2
 
 # Hip giữ 0°, nhưng có OFFSET riêng để đúng cơ khí (SIGN chỉ dùng nếu bạn muốn đảo chiều sau này)
 HIP1_OFFSET, HIP1_SIGN = 0.0, +1      # kênh 1
-HIP3_OFFSET, HIP3_SIGN = 0.0, +1      # kênh 3
+HIP3_OFFSET, HIP3_SIGN = 30.0, +1      # kênh 3
 
 # PWM range (chỉnh theo servo của bạn, ví dụ MG996R thường 500..2500 µs)
 PULSE_MIN, PULSE_MAX = 500, 2500
