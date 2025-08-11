@@ -15,7 +15,7 @@ STAND_X = 0.0   # cm  (sửa tại đây)
 STAND_Y = 18.0  # cm  (sửa tại đây)
 ELBOW_DOWN = True
 
-KNEE_ALPHA1_OFFSET = +90.0  # α1 + 90° (yêu cầu của bạn)
+KNEE_ALPHA1_OFFSET = -90.0  # α1 + 90° (yêu cầu của bạn)
 
 MIN_US, MAX_US = 600, 2400
 HIP_CH, KNEE_CH = 0, 1      # chỉ thử 2 kênh này
