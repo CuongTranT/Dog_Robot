@@ -1,92 +1,100 @@
-# dog_start_and_stand.py
-# - Khởi động: set góc INIT_ANGLES cho 8 kênh (0..7)
-# - Nhấn 'w': tính IK (L1=L2=10cm, bàn chân ngay dưới hông ở cao H) -> tư thế đứng
+# dog_start_and_stand_xyconst.py
+# - Khởi động: set INIT_ANGLES
+# - Nhấn 'w': dùng STAND_X, STAND_Y -> IK -> set kênh 0,1
 # - Nhấn 's': về tư thế bắt đầu; 'q': thoát
 
 import sys, termios, tty, select, math, time
 from adafruit_servokit import ServoKit
 
 # ---------- CONFIG ----------
-INIT_ANGLES = [100, 180, 110, 180, 70, 20, 85, 20]  # tư thế bắt đầu của bạn
-L1 = 10.0  # cm (hip)
-L2 = 10.0  # cm (knee)
-H  = 10.0  # cm: chiều cao “đường chấm gạch” (hông -> đất) khi đứng
+INIT_ANGLES = [100, 180, 110, 180, 70, 20, 85, 20]
+L1 = 10.0     # cm
+L2 = 10.0     # cm
+STAND_X = 0.0 # cm  (bạn sửa ở đây)
+STAND_Y = 18.0# cm  (bạn sửa ở đây)
+ELBOW_DOWN = True  # nếu chiều ngược, thử đổi False
 
 MIN_US, MAX_US = 600, 2400
-HIP_CH   = [0, 2, 4, 6]  # các kênh khớp hip
-KNEE_CH  = [1, 3, 5, 7]  # các kênh khớp knee
+HIP_CH, KNEE_CH = 0, 1  # chỉ thử 2 kênh này
 
-# Offset/Sign để quy đổi góc IK -> góc servo (chỉnh theo cơ khí thực tế)
-HIP_OFF  = [90.0, 90.0, 90.0, 90.0]
-HIP_SIGN = [+1,   +1,   +1,   +1  ]
-KNEE_OFF = [90.0, 90.0, 90.0, 90.0]
-KNEE_SIGN= [+1,   +1,   +1,   +1  ]
-# ----------------------------
+# ---------- IK & helpers ----------
+def clamp(v, lo, hi): return max(lo, min(hi, v))
 
-def clamp(a, lo=0.0, hi=180.0):
-    return max(lo, min(hi, float(a)))
+def ik_2R_xy(x, y, elbow_down=True):
+    # Quy ước: gốc tại hông; x sang phải; y dương xuống
+    r2 = x*x + y*y
+    if r2 < (L1-L2)**2 - 1e-9 or r2 > (L1+L2)**2 + 1e-9:
+        raise ValueError(f"({x:.2f},{y:.2f}) ngoài tầm với")
 
-def ik_under_hip(H):
-    # IK 2R: x=0, y=-H
-    r2 = H*H
     c2 = (r2 - L1*L1 - L2*L2) / (2*L1*L2)
-    if not -1.0 <= c2 <= 1.0:
-        raise ValueError("Mục tiêu ngoài tầm với (0 < H ≤ L1+L2).")
-    th2 = -math.acos(c2)  # chọn nghiệm knee-down
-    th1 = -math.pi/2 - math.atan2(L2*math.sin(th2), L1 + L2*math.cos(th2))
-    return math.degrees(th1), math.degrees(th2)  # (hip, knee)
+    c2 = clamp(c2, -1.0, 1.0)
+    s2 = math.sqrt(max(0.0, 1.0 - c2*c2))
+    if not elbow_down:
+        s2 = -s2
 
-def set_all_minmax(kit):
-    for ch in range(8):
+    q2 = math.atan2(s2, c2)
+    a1 = math.atan2(y, x) - math.atan2(L2*s2, L1 + L2*c2)
+    a2 = a1 + q2
+    return math.degrees(a1), math.degrees(a2)
+
+def move_servo_smooth(kit, ch, target_deg, step=2.0, dt=0.01):
+    cur = kit.servo[ch].angle
+    tgt = clamp(target_deg, 0, 180)
+    if cur is None:
+        kit.servo[ch].angle = tgt
+        return
+    sgn = 1.0 if tgt >= cur else -1.0
+    a = cur
+    while (a - tgt) * sgn < 0:
+        a += sgn * step
+        if (a - tgt) * sgn > 0:
+            a = tgt
+        kit.servo[ch].angle = clamp(a, 0, 180)
+        time.sleep(dt)
+
+def apply_init(kit):
+    for ch, ang in enumerate(INIT_ANGLES):
         kit.servo[ch].set_pulse_width_range(MIN_US, MAX_US)
+        kit.servo[ch].angle = clamp(ang, 0, 180)
 
-def apply_angles(kit, angles_deg):
-    for ch in range(8):
-        kit.servo[ch].angle = clamp(angles_deg[ch])
+# ---------- non-blocking key read ----------
+class KB:
+    def __enter__(self):
+        self.fd = sys.stdin.fileno()
+        self.old = termios.tcgetattr(self.fd)
+        tty.setcbreak(self.fd)
+        return self
+    def __exit__(self, *_):
+        termios.tcsetattr(self.fd, termios.TCSADRAIN, self.old)
+    def readch(self, timeout=0.05):
+        if select.select([sys.stdin], [], [], timeout)[0]:
+            return sys.stdin.read(1)
+        return ''
 
-def stand_pose_from_ik():
-    th1_deg, th2_deg = ik_under_hip(H)
-    # map IK -> servo cho 4 chân
-    out = [0.0]*8
-    for i, (h, k) in enumerate(zip(HIP_CH, KNEE_CH)):
-        out[h] = clamp(HIP_OFF[i]  + HIP_SIGN[i]  * th1_deg)
-        out[k] = clamp(KNEE_OFF[i] + KNEE_SIGN[i] * th2_deg)
-    return out
-
-def getch_nowait():
-    dr, _, _ = select.select([sys.stdin], [], [], 0)
-    if dr:
-        return sys.stdin.read(1)
-    return None
-
+# ---------- Main ----------
 def main():
     kit = ServoKit(channels=16)
-    set_all_minmax(kit)
+    apply_init(kit)
+    print("Sẵn sàng. Nhấn 'w' để đứng theo STAND_X/STAND_Y; 's' về INIT; 'q' thoát.")
+    print(f"STAND_X={STAND_X} cm, STAND_Y={STAND_Y} cm")
 
-    # Tư thế bắt đầu
-    apply_angles(kit, INIT_ANGLES)
-    print("Start pose applied. Phím: w=Đứng, s=Bắt đầu, q=Thoát")
-
-    # Bật chế độ đọc phím không cần Enter
-    fd = sys.stdin.fileno()
-    old = termios.tcgetattr(fd)
-    try:
-        tty.setcbreak(fd)
+    with KB() as kb:
         while True:
-            c = getch_nowait()
-            if c == 'w':
-                angles = stand_pose_from_ik()
-                apply_angles(kit, angles)
-                print("→ Stand pose:", [round(a,1) for a in angles])
-            elif c == 's':
-                apply_angles(kit, INIT_ANGLES)
-                print("→ Back to start pose.")
-            elif c == 'q':
-                print("Bye.")
+            c = kb.readch()
+            if c == 'q':
+                print("Thoát.")
                 break
-            time.sleep(0.01)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old)
+            elif c == 's':
+                print("Về INIT.")
+                apply_init(kit)
+            elif c == 'w':
+                try:
+                    a1, a2 = ik_2R_xy(STAND_X, STAND_Y, ELBOW_DOWN)
+                except ValueError as e:
+                    print("IK lỗi:", e); continue
+                print(f"IK -> alpha1={a1:.2f}°, alpha2={a2:.2f}°")
+                move_servo_smooth(kit, HIP_CH,  a1)
+                move_servo_smooth(kit, KNEE_CH, a2)
 
 if __name__ == "__main__":
     main()
