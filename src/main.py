@@ -56,7 +56,7 @@ def main():
     a1, a2 = ik_alpha1_alpha2(STAND_X, STAND_Y, ELBOW_DOWN)
 
     # Map yêu cầu: CH0 <- a1 + 90°, CH1 <- a2
-    ch0_cmd = a1 - 50.0
+    ch0_cmd = a1 - 110.0
     ch1_cmd = a2 + 90.0
 
     print(f"G=({STAND_X},{STAND_Y}) cm -> α1={a1:.2f}°, α2={a2:.2f}°")
