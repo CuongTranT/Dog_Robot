@@ -22,11 +22,11 @@ def compute_right_leg(x, y):
     cos_beta = (L1**2 + D**2 - L2**2) / (2 * L1 * D)
     beta = math.acos(cos_beta)
     # Hip/phần hông (kênh 1,3)
-    alpha_hip = math.degrees(theta - beta) + 65
+    alpha_hip = math.degrees(theta - beta) + 55
     # Knee/phần gối (kênh 0,2)
     cos_gamma = (L1**2 + L2**2 - D**2) / (2 * L1 * L2)
     gamma = math.acos(cos_gamma)
-    alpha_knee = math.degrees(math.pi - gamma) + 65
+    alpha_knee = math.degrees(math.pi - gamma) + 55
     return alpha_knee, alpha_hip  # servo0/2, servo1/3
 
 # 🔧 HÀM IK cho chân trái
