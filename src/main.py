@@ -20,10 +20,10 @@ def compute_right_leg(x, y):
     theta = math.atan2(y, x)
     cos_beta = (L1**2 + D**2 - L2**2) / (2 * L1 * D)
     beta = math.acos(cos_beta)
-    alpha_hip = math.degrees(theta - beta) + 90
+    alpha_hip = math.degrees(theta - beta) + 70
     cos_gamma = (L1**2 + L2**2 - D**2) / (2 * L1 * L2)
     gamma = math.acos(cos_gamma)
-    alpha_knee = math.degrees(math.pi - gamma) + 90 # ⚠️ theo yêu cầu
+    alpha_knee = math.degrees(math.pi - gamma) + 70# ⚠️ theo yêu cầu
     return alpha_knee, alpha_hip
 
 # 🔧 HÀM IK cho chân trái
