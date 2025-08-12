@@ -130,13 +130,13 @@ def main():
     for leg, (x, y) in STANDING_POINTS.items():
         move_leg(kit, leg, x, y, elbow_down=True)
     
-    print("\n=== DI CHUYỂN KÊNH 0 VÀ 1 VỀ 180° ===")
-    # Di chuyển kênh 0 và 1 về vị trí 180 độ
-    kit.servo[0].angle = 180
-    kit.servo[1].angle = 180
-    print("CH0: 180°")
-    print("CH1: 180°")
-    print("Kênh 0 và 1 đã được di chuyển về vị trí 180°")
+    print("\n=== DI CHUYỂN KÊNH 0 VÀ 1 VỀ 0° ===")
+    # Di chuyển kênh 0 và 1 về vị trí 0 độ
+    kit.servo[0].angle = 0
+    kit.servo[1].angle = 0
+    print("CH0: 0°")
+    print("CH1: 0°")
+    print("Kênh 0 và 1 đã được di chuyển về vị trí 0°")
 
 if __name__ == "__main__":
     main()
