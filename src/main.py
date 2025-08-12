@@ -1,32 +1,47 @@
-# dog_xy_apply_chmap_custom_per_servo.py
-# CH0 & CH2 ← alpha0
-# CH1 & CH3 ← alpha1
-# Cho phép hiệu chỉnh riêng từng servo
-
 import math
 import time
 from adafruit_servokit import ServoKit
 
 # ==== CONFIG ====
-L1 = 10.0
-L2 = 10.0
-
-STAND_X = 0.0
-STAND_Y = 18.0
-ELBOW_DOWN = True
-
-INIT_ANGLES = [100, 180, 110, 180, 70, 20, 85, 20]
+L1 = 10.0  # Chiều dài khâu 1
+L2 = 10.0  # Chiều dài khâu 2
 MIN_US, MAX_US = 600, 2400
 
-CH0 = 0
-CH1 = 1
-CH2 = 2
-CH3 = 3
+# Góc khởi tạo cho tất cả các kênh
+INIT_ANGLES = [100, 180, 110, 180, 70, 20, 85, 20]
 
+# Tọa độ mục tiêu cho mỗi chân
+GOAL_POINTS = {
+    "front_right": (0.0, 18.0),
+    "back_right":  (0.0, 18.0),
+    "front_left":  (0.0, 18.0),
+    "back_left":   (0.0, 18.0),
+}
+
+# Kênh servo tương ứng từng chân
+SERVO_CHANNELS = {
+    "front_right": {"hip": 0, "knee": 1},
+    "back_right":  {"hip": 2, "knee": 3},
+    "front_left":  {"hip": 4, "knee": 5},
+    "back_left":   {"hip": 6, "knee": 7},
+}
+
+# Mapping chuyển từ alpha → góc servo cụ thể
+SERVO_MAP = {
+    0: lambda a0, a1: 270 - a0,     # CH0: hip phải
+    1: lambda a0, a1: a1 + 90,      # CH1: knee phải
+    2: lambda a0, a1: 250 - a0,     # CH2: hip phải sau
+    3: lambda a0, a1: a1 + 80,      # CH3: knee phải sau
+    4: lambda a0, a1: a0 - 90,      # ✅ CH4: hip trái (sửa lại đúng gốc đối xứng)
+    5: lambda a0, a1: a1 + 90,      # CH5: knee trái
+    6: lambda a0, a1: a0 - 90,      # CH6: hip trái sau
+    7: lambda a0, a1: a1 + 90,      # CH7: knee trái sau
+}
 def clamp(v, lo, hi):
     return max(lo, min(hi, v))
 
-def ik_alpha0_alpha1(x, y, elbow_down=True):
+def ik_2d(x, y, elbow_down=True):
+    """Tính động học ngược cho tay máy 2 khâu"""
     r2 = x*x + y*y
     if r2 < (L1 - L2)**2 - 1e-9 or r2 > (L1 + L2)**2 + 1e-9:
         raise ValueError("Điểm đặt ngoài tầm với")
@@ -38,38 +53,37 @@ def ik_alpha0_alpha1(x, y, elbow_down=True):
         s2 = -s2
 
     q2 = math.atan2(s2, c2)
-    alpha1 = math.atan2(y, x) - math.atan2(L2 * s2, L1 + L2 * c2)
-    alpha0 = alpha1 + q2
-
+    alpha1 = math.atan2(y, x) - math.atan2(L2 * s2, L1 + L2 * c2)  # khâu 1
+    alpha0 = alpha1 + q2                                           # khâu 2
     return math.degrees(alpha0), math.degrees(alpha1)
+
+def move_leg(kit, leg_name, x, y, elbow_down=True):
+    alpha0, alpha1 = ik_2d(x, y, elbow_down)
+    hip_ch  = SERVO_CHANNELS[leg_name]["hip"]
+    knee_ch = SERVO_CHANNELS[leg_name]["knee"]
+
+    angle_hip  = clamp(SERVO_MAP[hip_ch](alpha0, alpha1), 0, 180)
+    angle_knee = clamp(SERVO_MAP[knee_ch](alpha0, alpha1), 0, 180)
+
+    kit.servo[hip_ch].angle  = angle_hip
+    kit.servo[knee_ch].angle = angle_knee
+
+    print(f"[{leg_name.upper()}] G=({x}, {y}) cm")
+    print(f"  α0 = {alpha0:.2f}°, α1 = {alpha1:.2f}°")
+    print(f"  Servo CH{hip_ch} = {angle_hip:.2f}°, CH{knee_ch} = {angle_knee:.2f}°")
 
 def main():
     kit = ServoKit(channels=16)
 
-    for ch in (CH0, CH1, CH2, CH3):
+    # Cấu hình và đặt tư thế ban đầu
+    for ch in range(8):
         kit.servo[ch].set_pulse_width_range(MIN_US, MAX_US)
+        kit.servo[ch].angle = clamp(INIT_ANGLES[ch], 0, 180)
+    time.sleep(0.5)
 
-    for ch, ang in enumerate(INIT_ANGLES):
-        kit.servo[ch].angle = clamp(ang, 0, 180)
-    time.sleep(0.3)
-
-    alpha0_deg, alpha1_deg = ik_alpha0_alpha1(STAND_X, STAND_Y, ELBOW_DOWN)
-
-    # Tách riêng từng kênh để hiệu chỉnh độc lập (offset, mirror, sign)
-    alpha_servo0 = 270.0 - alpha0_deg   # CH0 → α0 + 90°
-    alpha_servo1 = alpha1_deg + 90.0    # CH1 → α1 + 90°
-    alpha_servo2 = 250.0 - alpha0_deg   # CH2 → α0 + 90°
-    alpha_servo3 = alpha1_deg + 80.0    # CH3 → α1 + 90°
-
-    print(f"G=({STAND_X}, {STAND_Y}) cm")
-    print(f"α0 (khâu 2) = {alpha0_deg:.2f}°,   α1 (khâu 1) = {alpha1_deg:.2f}°")
-    print(f"CH0 = {alpha_servo0:.2f}°,   CH1 = {alpha_servo1:.2f}°")
-    print(f"CH2 = {alpha_servo2:.2f}°,   CH3 = {alpha_servo3:.2f}°")
-
-    kit.servo[CH0].angle = clamp(alpha_servo0, 0, 180)
-    kit.servo[CH1].angle = clamp(alpha_servo1, 0, 180)
-    kit.servo[CH2].angle = clamp(alpha_servo2, 0, 180)
-    kit.servo[CH3].angle = clamp(alpha_servo3, 0, 180)
+    # Điều khiển từng chân về vị trí mục tiêu
+    for leg, (x, y) in GOAL_POINTS.items():
+        move_leg(kit, leg, x, y, elbow_down=True)
 
 if __name__ == "__main__":
     main()
