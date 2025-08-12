@@ -129,6 +129,14 @@ def main():
     # Điều khiển từng chân về vị trí đứng
     for leg, (x, y) in STANDING_POINTS.items():
         move_leg(kit, leg, x, y, elbow_down=True)
+    
+    print("\n=== DI CHUYỂN KÊNH 0 VÀ 1 VỀ 180° ===")
+    # Di chuyển kênh 0 và 1 về vị trí 180 độ
+    kit.servo[0].angle = 180
+    kit.servo[1].angle = 180
+    print("CH0: 180°")
+    print("CH1: 180°")
+    print("Kênh 0 và 1 đã được di chuyển về vị trí 180°")
 
 if __name__ == "__main__":
     main()
