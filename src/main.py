@@ -56,7 +56,7 @@ def main():
     alpha0_deg, alpha1_deg = ik_alpha0_alpha1(STAND_X, STAND_Y, ELBOW_DOWN)
 
     # Tách riêng từng kênh để hiệu chỉnh độc lập (offset, mirror, sign)
-    alpha_servo0 = 270.0 - alpha0_deg   # CH0 → α0 + 90°
+    alpha_servo0 = 250.0 - alpha0_deg   # CH0 → α0 + 90°
     alpha_servo1 = alpha1_deg + 90.0    # CH1 → α1 + 90°
     alpha_servo2 = 270.0 - alpha0_deg   # CH2 → α0 + 90°
     alpha_servo3 = alpha1_deg + 70.0    # CH3 → α1 + 90°
