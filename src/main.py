@@ -46,19 +46,23 @@ def _hip_right(a0_deg, _a1_deg):
 def _hip_left(a0_deg, _a1_deg):
     return a0_deg - 90
 
+def _hip_left_reverse(a0_deg, _a1_deg):
+    # Chân B và D (bên trái) có gốc tọa độ ngược chiều với A và C
+    return 180 - (a0_deg - 90)
+
 def _knee_common(_a0_deg, a1_deg):
     return a1_deg + 90
 
 # Mapping chuyển từ alpha → góc servo cụ thể (đồng nhất trái/phải, có offset tinh chỉnh)
 SERVO_MAP = {
-    0: lambda a0, a1: _hip_right(a0, a1) + SERVO_OFFSETS[0],
-    1: lambda a0, a1: _knee_common(a0, a1) + SERVO_OFFSETS[1],
-    2: lambda a0, a1: _hip_right(a0, a1) + SERVO_OFFSETS[2],
-    3: lambda a0, a1: _knee_common(a0, a1) + SERVO_OFFSETS[3],
-    4: lambda a0, a1: _hip_left(a0, a1) + SERVO_OFFSETS[4],
-    5: lambda a0, a1: _knee_common(a0, a1) + SERVO_OFFSETS[5],
-    6: lambda a0, a1: _hip_left(a0, a1) + SERVO_OFFSETS[6],
-    7: lambda a0, a1: _knee_common(a0, a1) + SERVO_OFFSETS[7],
+    0: lambda a0, a1: _hip_right(a0, a1) + SERVO_OFFSETS[0],      # CH0: hip phải trước (C)
+    1: lambda a0, a1: _knee_common(a0, a1) + SERVO_OFFSETS[1],     # CH1: knee phải trước (C)
+    2: lambda a0, a1: _hip_right(a0, a1) + SERVO_OFFSETS[2],       # CH2: hip phải sau (A)
+    3: lambda a0, a1: _knee_common(a0, a1) + SERVO_OFFSETS[3],     # CH3: knee phải sau (A)
+    4: lambda a0, a1: _hip_left_reverse(a0, a1) + SERVO_OFFSETS[4], # CH4: hip trái trước (D) - ngược chiều
+    5: lambda a0, a1: _knee_common(a0, a1) + SERVO_OFFSETS[5],     # CH5: knee trái trước (D)
+    6: lambda a0, a1: _hip_left_reverse(a0, a1) + SERVO_OFFSETS[6], # CH6: hip trái sau (B) - ngược chiều
+    7: lambda a0, a1: _knee_common(a0, a1) + SERVO_OFFSETS[7],     # CH7: knee trái sau (B)
 }
 def clamp(v, lo, hi):
     return max(lo, min(hi, v))
