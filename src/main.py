@@ -3,69 +3,46 @@ import time
 from adafruit_servokit import ServoKit
 
 # ==== CONFIG ====
-L1 = 10.0  # Chiều dài khâu 1
-L2 = 10.0  # Chiều dài khâu 2
+L1 = 10.0  # Chiều dài khâu 1 (hip)
+L2 = 10.0  # Chiều dài khâu 2 (knee)
 MIN_US, MAX_US = 600, 2400
 
-# Góc khởi tạo cho tất cả các kênh
-INIT_ANGLES = [100, 180, 110, 180, 70, 20, 85, 20]
-
-# Tọa độ mục tiêu cho mỗi chân (tư thế đứng trung tính)
-# Định danh theo yêu cầu: A(2,3), B(6,7), C(0,1), D(4,5)
-GOAL_POINTS = {
-    "A": (0.0, 18.0),  # kênh 2,3
-    "B": (0.0, 18.0),  # kênh 6,7
-    "C": (0.0, 18.0),  # kênh 0,1
-    "D": (0.0, 18.0),  # kênh 4,5
+# Tọa độ mục tiêu cho mỗi chân
+# A(trái-trên), B(phải-trên), C(trái-dưới), D(phải-dưới)
+SITTING_POINTS = {
+    "A": (0.0, 9.0),   # kênh 0,1 - tư thế ngồi
+    "B": (0.0, 9.0),   # kênh 2,3 - tư thế ngồi
+    "C": (0.0, 9.0),   # kênh 4,5 - tư thế ngồi
+    "D": (0.0, 9.0),   # kênh 6,7 - tư thế ngồi
 }
 
-# Kênh servo tương ứng từng chân theo A/B/C/D
+STANDING_POINTS = {
+    "A": (0.0, 18.0),  # kênh 0,1 - tư thế đứng
+    "B": (0.0, 18.0),  # kênh 2,3 - tư thế đứng
+    "C": (0.0, 18.0),  # kênh 4,5 - tư thế đứng
+    "D": (0.0, 18.0),  # kênh 6,7 - tư thế đứng
+}
+
+# Kênh servo tương ứng từng chân
 SERVO_CHANNELS = {
-    "A": {"hip": 2, "knee": 3},  # A: kênh 2,3
-    "B": {"hip": 6, "knee": 7},  # B: kênh 6,7
-    "C": {"hip": 0, "knee": 1},  # C: kênh 0,1
-    "D": {"hip": 4, "knee": 5},  # D: kênh 4,5
+    "A": {"hip": 0, "knee": 1},  # A: kênh 0,1
+    "B": {"hip": 2, "knee": 3},  # B: kênh 2,3
+    "C": {"hip": 4, "knee": 5},  # C: kênh 4,5
+    "D": {"hip": 6, "knee": 7},  # D: kênh 6,7
 }
 
 # Hiệu chỉnh offset từng kênh (độ) để căn tư thế đứng chuẩn
-# Có thể tinh chỉnh nhanh tại đây nếu cơ khí lắp lệch
 SERVO_OFFSETS = {
-    0: 0,    # CH0  hip phải trước (C)
-    1: 0,    # CH1  knee phải trước (C)
-    2: -20,  # CH2  hip phải sau   (A) — bù tương đương map cũ 250 - a0
-    3: -10,  # CH3  knee phải sau  (A) — bù tương đương map cũ a1 + 80
-    4: 0,    # CH4  hip trái trước (D)
-    5: 0,    # CH5  knee trái trước (D)
-    6: 0,    # CH6  hip trái sau   (B)
-    7: 0,    # CH7  knee trái sau  (B)
+    0: 0,  # CH0  hip A
+    1: 0,  # CH1  knee A
+    2: 0,  # CH2  hip B
+    3: 0,  # CH3  knee B
+    4: 0,  # CH4  hip C
+    5: 0,  # CH5  knee C
+    6: 0,  # CH6  hip D
+    7: 0,  # CH7  knee D
 }
 
-def _hip_right(a0_deg, _a1_deg):
-    return 270 - a0_deg
-
-def _hip_left(a0_deg, _a1_deg):
-    return a0_deg - 90
-
-def _hip_left_reverse(a0_deg, _a1_deg):
-    # Chân B và D (bên trái) có hướng quay khác với A và C
-    # Khi a0 = 154° thì chân duỗi lên trên (nhìn từ hướng B,D)
-    # Nhưng cần đảm bảo tư thế đứng đúng
-    return 180 - a0_deg
-
-def _knee_common(_a0_deg, a1_deg):
-    return a1_deg + 90
-
-# Mapping chuyển từ alpha → góc servo cụ thể (đồng nhất trái/phải, có offset tinh chỉnh)
-SERVO_MAP = {
-    0: lambda a0, a1: _hip_right(a0, a1) + SERVO_OFFSETS[0],      # CH0: hip phải trước (C)
-    1: lambda a0, a1: _knee_common(a0, a1) + SERVO_OFFSETS[1],     # CH1: knee phải trước (C)
-    2: lambda a0, a1: _hip_right(a0, a1) + SERVO_OFFSETS[2],       # CH2: hip phải sau (A)
-    3: lambda a0, a1: _knee_common(a0, a1) + SERVO_OFFSETS[3],     # CH3: knee phải sau (A)
-    4: lambda a0, a1: _hip_left_reverse(a0, a1) + SERVO_OFFSETS[4], # CH4: hip trái trước (D) - ngược chiều
-    5: lambda a0, a1: _knee_common(a0, a1) + SERVO_OFFSETS[5],     # CH5: knee trái trước (D)
-    6: lambda a0, a1: _hip_left_reverse(a0, a1) + SERVO_OFFSETS[6], # CH6: hip trái sau (B) - ngược chiều
-    7: lambda a0, a1: _knee_common(a0, a1) + SERVO_OFFSETS[7],     # CH7: knee trái sau (B)
-}
 def clamp(v, lo, hi):
     return max(lo, min(hi, v))
 
@@ -86,32 +63,71 @@ def ik_2d(x, y, elbow_down=True):
     alpha0 = alpha1 + q2                                           # khâu 2
     return math.degrees(alpha0), math.degrees(alpha1)
 
+def get_servo_angle(channel, alpha0, alpha1):
+    """Tính góc servo dựa trên kênh và góc alpha"""
+    if channel % 2 == 0:  # Hip servo (kênh chẵn)
+        # Servo dưới hướng sang phải
+        return 90 + alpha0 + SERVO_OFFSETS[channel]
+    else:  # Knee servo (kênh lẻ)
+        # Servo trên hướng sang trái (ngược chiều)
+        return 90 - alpha1 + SERVO_OFFSETS[channel]
+
+def calculate_init_angles():
+    """Tính toán góc khởi tạo cho tư thế ngồi trung tính"""
+    init_angles = [0] * 8
+    
+    # Tính góc cho tọa độ ngồi (0.0, 9.0) cm
+    x, y = 0.0, 9.0
+    alpha0, alpha1 = ik_2d(x, y, elbow_down=True)
+    
+    print(f"=== TÍNH TOÁN GÓC KHỞI TẠO ===")
+    print(f"Tọa độ ngồi: ({x}, {y}) cm")
+    print(f"Góc alpha0 = {alpha0:.2f}°, alpha1 = {alpha1:.2f}°")
+    print()
+    
+    # Tính góc servo cho từng kênh
+    for ch in range(8):
+        angle = get_servo_angle(ch, alpha0, alpha1)
+        init_angles[ch] = clamp(angle, 0, 180)
+        print(f"CH{ch}: {angle:.2f}° → clamp = {init_angles[ch]:.2f}°")
+    
+    print()
+    return init_angles
+
+# Góc khởi tạo cho tất cả các kênh (tư thế ngồi trung tính)
+INIT_ANGLES = calculate_init_angles()
+
 def move_leg(kit, leg_name, x, y, elbow_down=True):
     alpha0, alpha1 = ik_2d(x, y, elbow_down)
     hip_ch  = SERVO_CHANNELS[leg_name]["hip"]
     knee_ch = SERVO_CHANNELS[leg_name]["knee"]
 
-    angle_hip  = clamp(SERVO_MAP[hip_ch](alpha0, alpha1), 0, 180)
-    angle_knee = clamp(SERVO_MAP[knee_ch](alpha0, alpha1), 0, 180)
+    angle_hip  = clamp(get_servo_angle(hip_ch, alpha0, alpha1), 0, 180)
+    angle_knee = clamp(get_servo_angle(knee_ch, alpha0, alpha1), 0, 180)
 
     kit.servo[hip_ch].angle  = angle_hip
     kit.servo[knee_ch].angle = angle_knee
 
-    print(f"[{leg_name.upper()}] G=({x}, {y}) cm")
+    print(f"[{leg_name}] G=({x}, {y}) cm")
     print(f"  α0 = {alpha0:.2f}°, α1 = {alpha1:.2f}°")
     print(f"  Servo CH{hip_ch} = {angle_hip:.2f}°, CH{knee_ch} = {angle_knee:.2f}°")
 
 def main():
     kit = ServoKit(channels=16)
 
-    # Cấu hình và đặt tư thế ban đầu
+    print("=== KHỞI TẠO ROBOT CHÓ ===")
+    print(f"Góc khởi tạo: {INIT_ANGLES}")
+    print()
+
+    # Cấu hình và đặt tư thế ban đầu (ngồi)
     for ch in range(8):
         kit.servo[ch].set_pulse_width_range(MIN_US, MAX_US)
         kit.servo[ch].angle = clamp(INIT_ANGLES[ch], 0, 180)
     time.sleep(0.5)
 
-    # Điều khiển từng chân về vị trí mục tiêu
-    for leg, (x, y) in GOAL_POINTS.items():
+    print("=== CHUYỂN SANG TƯ THẾ ĐỨNG ===")
+    # Điều khiển từng chân về vị trí đứng
+    for leg, (x, y) in STANDING_POINTS.items():
         move_leg(kit, leg, x, y, elbow_down=True)
 
 if __name__ == "__main__":
