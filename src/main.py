@@ -10,32 +10,55 @@ MIN_US, MAX_US = 600, 2400
 # Góc khởi tạo cho tất cả các kênh
 INIT_ANGLES = [100, 180, 110, 180, 70, 20, 85, 20]
 
-# Tọa độ mục tiêu cho mỗi chân
+# Tọa độ mục tiêu cho mỗi chân (tư thế đứng trung tính)
+# Định danh theo yêu cầu: A(2,3), B(6,7), C(0,1), D(4,5)
 GOAL_POINTS = {
-    "front_right": (0.0, 18.0),
-    "back_right":  (0.0, 18.0),
-    "front_left":  (0.0, 18.0),
-    "back_left":   (0.0, 18.0),
+    "A": (0.0, 18.0),  # kênh 2,3
+    "B": (0.0, 18.0),  # kênh 6,7
+    "C": (0.0, 18.0),  # kênh 0,1
+    "D": (0.0, 18.0),  # kênh 4,5
 }
 
-# Kênh servo tương ứng từng chân
+# Kênh servo tương ứng từng chân theo A/B/C/D
 SERVO_CHANNELS = {
-    "front_right": {"hip": 0, "knee": 1},
-    "back_right":  {"hip": 2, "knee": 3},
-    "front_left":  {"hip": 4, "knee": 5},
-    "back_left":   {"hip": 6, "knee": 7},
+    "A": {"hip": 2, "knee": 3},  # A: kênh 2,3
+    "B": {"hip": 6, "knee": 7},  # B: kênh 6,7
+    "C": {"hip": 0, "knee": 1},  # C: kênh 0,1
+    "D": {"hip": 4, "knee": 5},  # D: kênh 4,5
 }
 
-# Mapping chuyển từ alpha → góc servo cụ thể
+# Hiệu chỉnh offset từng kênh (độ) để căn tư thế đứng chuẩn
+# Có thể tinh chỉnh nhanh tại đây nếu cơ khí lắp lệch
+SERVO_OFFSETS = {
+    0: 0,    # CH0  hip phải trước (C)
+    1: 0,    # CH1  knee phải trước (C)
+    2: -20,  # CH2  hip phải sau   (A) — bù tương đương map cũ 250 - a0
+    3: -10,  # CH3  knee phải sau  (A) — bù tương đương map cũ a1 + 80
+    4: 0,    # CH4  hip trái trước (D)
+    5: 0,    # CH5  knee trái trước (D)
+    6: 0,    # CH6  hip trái sau   (B)
+    7: 0,    # CH7  knee trái sau  (B)
+}
+
+def _hip_right(a0_deg, _a1_deg):
+    return 270 - a0_deg
+
+def _hip_left(a0_deg, _a1_deg):
+    return a0_deg - 90
+
+def _knee_common(_a0_deg, a1_deg):
+    return a1_deg + 90
+
+# Mapping chuyển từ alpha → góc servo cụ thể (đồng nhất trái/phải, có offset tinh chỉnh)
 SERVO_MAP = {
-    0: lambda a0, a1: 270 - a0,     # CH0: hip phải
-    1: lambda a0, a1: a1 + 90,      # CH1: knee phải
-    2: lambda a0, a1: 250 - a0,     # CH2: hip phải sau
-    3: lambda a0, a1: a1 + 80,      # CH3: knee phải sau
-    4: lambda a0, a1: a0 - 90,      # ✅ CH4: hip trái (sửa lại đúng gốc đối xứng)
-    5: lambda a0, a1: a1 + 90,      # CH5: knee trái
-    6: lambda a0, a1: a0 - 90,      # CH6: hip trái sau
-    7: lambda a0, a1: 0      # CH7: knee trái sau
+    0: lambda a0, a1: _hip_right(a0, a1) + SERVO_OFFSETS[0],
+    1: lambda a0, a1: _knee_common(a0, a1) + SERVO_OFFSETS[1],
+    2: lambda a0, a1: _hip_right(a0, a1) + SERVO_OFFSETS[2],
+    3: lambda a0, a1: _knee_common(a0, a1) + SERVO_OFFSETS[3],
+    4: lambda a0, a1: _hip_left(a0, a1) + SERVO_OFFSETS[4],
+    5: lambda a0, a1: _knee_common(a0, a1) + SERVO_OFFSETS[5],
+    6: lambda a0, a1: _hip_left(a0, a1) + SERVO_OFFSETS[6],
+    7: lambda a0, a1: _knee_common(a0, a1) + SERVO_OFFSETS[7],
 }
 def clamp(v, lo, hi):
     return max(lo, min(hi, v))
