@@ -49,7 +49,8 @@ def _hip_left(a0_deg, _a1_deg):
 def _hip_left_reverse(a0_deg, _a1_deg):
     # Chân B và D (bên trái) có hướng quay khác với A và C
     # Khi a0 = 154° thì chân duỗi lên trên (nhìn từ hướng B,D)
-    return a0_deg + 90
+    # Nhưng cần đảm bảo tư thế đứng đúng
+    return 180 - a0_deg
 
 def _knee_common(_a0_deg, a1_deg):
     return a1_deg + 90
