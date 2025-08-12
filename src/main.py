@@ -64,9 +64,10 @@ def main():
     # Gán ra servo:
     # CH0 <- α0 + 90° → tương đương với (270 - α0) do offset vật lý
     # CH1 <- α1 + 90°
-    ch0_cmd = 270.0 - alpha0_deg
-    ch1_cmd = alpha1_deg + 90.0
-
+    # ch0_cmd = 270.0 - alpha0_deg
+    # ch1_cmd = alpha1_deg + 90.0
+    ch0_cmd = 180
+    ch1_cmd = 180
     # In kết quả
     print(f"G=({STAND_X}, {STAND_Y}) cm")
     print(f"α0 (khâu 2) = {alpha0_deg:.2f}°,   α1 (khâu 1) = {alpha1_deg:.2f}°")
