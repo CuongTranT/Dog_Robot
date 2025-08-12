@@ -35,7 +35,7 @@ SERVO_MAP = {
     4: lambda a0, a1: a0 - 90,      # ✅ CH4: hip trái (sửa lại đúng gốc đối xứng)
     5: lambda a0, a1: a1 + 90,      # CH5: knee trái
     6: lambda a0, a1: a0 - 90,      # CH6: hip trái sau
-    7: lambda a0, a1: a1,      # CH7: knee trái sau
+    7: lambda a0, a1: 180,      # CH7: knee trái sau
 }
 def clamp(v, lo, hi):
     return max(lo, min(hi, v))
