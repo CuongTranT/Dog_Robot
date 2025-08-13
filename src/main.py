@@ -10,8 +10,8 @@ L1 = 10  # hip length
 L2 = 10  # knee length
 
 # Góc cố định khi ngồi (không dùng IK)
-INIT_ANGLES = [120, 180, 110, 180, 70, 10, 70, 10]
-
+# INIT_ANGLES = [120, 180, 110, 180, 70, 10, 70, 10]
+INIT_ANGLES = [180, 180, 110, 180, 70, 10, 70, 10]
 # ================================
 def compute_right_leg(x, y):
     D = math.hypot(x, y)
