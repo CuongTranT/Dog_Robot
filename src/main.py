@@ -7,7 +7,7 @@ import Adafruit_PCA9685
 # ====================
 # ⚙️ CẤU HÌNH SERVO
 # ====================
-pwm = Adafruit_PCA9685.PCA9685()
+pwm = Adafruit_PCA9685.PCA9685(busnum=1)
 pwm.set_pwm_freq(60)
 
 # Chiều dài khâu
