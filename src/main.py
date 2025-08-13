@@ -8,86 +8,72 @@ import Adafruit_PCA9685
 # ⚙️ CẤU HÌNH SERVO
 # ====================
 pwm = Adafruit_PCA9685.PCA9685(busnum=1)
-pwm.set_pwm_freq(60)
-
-# Chiều dài khâu
-l1 = 100  # mm
-l2 = 100  # mm
-
-# Vị trí chân trái
-pos_left = np.array([0, 0, 0])
-left_leg = 0
-
-# Offset mapping servo (góc cơ học)
-LEFT_OFFSET = np.array([180, 225])  # t1_offset, t2_offset
+pwm.set_pwm_freq(60)  # Hz
 
 # ====================
-# ⚠️ Mapping góc → xung PWM
+# 📐 THÔNG SỐ CƠ KHÍ
 # ====================
-def angle2pulse(angle):
-    # mapping từ 0-180° → xung PWM (100-600)
-    return int(100 + (500 * angle / 180))
+L1 = 100  # mm
+L2 = 100  # mm
+
+# Offset kênh servo (nếu cần)
+LEFT_OFFSET = np.array([0, 180])  # Góc offset phần hip và knee
+
+# Mapping từ góc độ sang PWM (0–180° → 500–2500μs)
+def angle_to_pwm(angle_deg):
+    pulse_min = 500
+    pulse_max = 2500
+    pwm_range = pulse_max - pulse_min
+    pulse = pulse_min + (pwm_range * angle_deg / 180.0)
+    # Map về 12-bit resolution PWM (0-4096)
+    pwm_val = int(pulse * 4096 / 20000)  # 20ms = 50Hz → 20000us
+    return pwm_val
 
 # ====================
-# Gửi lệnh điều khiển servo
+# 🔧 HÀM ĐỘNG HỌC NGHỊCH
 # ====================
-def setLegAngles(leg_address, Theta1, Theta2):
-    # Áp dụng offset cho servo trái
-    if leg_address == left_leg:
-        Theta1 = Theta1 - LEFT_OFFSET[0]  # hip
-        Theta2 = Theta2 - LEFT_OFFSET[1]  # knee
-    else:
-        print("❌ Sai leg_address")
-        return
-
-    print(f"[REAL TEST] θ1 = {Theta1:.1f}°, θ2 = {Theta2:.1f}°")
-
-    pwm.set_pwm(leg_address*2, 0, angle2pulse(Theta1))     # channel 0
-    pwm.set_pwm(leg_address*2 + 1, 0, angle2pulse(Theta2)) # channel 1
-
-# ====================
-# Hàm kiểm tra workspace
-# ====================
-def Check_work_space(x, y, z):
-    k1 = x**2 + y**2 + z**2
-    if k1 > (l1 + l2)**2 or k1 < (l1 - l2)**2:
-        print("❌ Out of workspace: ", x, y, z)
-        exit()
-
-# ====================
-# HÀM ĐỘNG HỌC NGHỊCH
-# ====================
-def LEFT_Inverse_Kinematics(x, y, z):
-    global pos_left
-    Check_work_space(x, y, z)
-
-    D = (x**2 + y**2 - l1**2 - l2**2) / (2 * l1 * l2)
+def inverse_kinematics(x, y):
+    D = (x**2 + y**2 - L1**2 - L2**2) / (2 * L1 * L2)
+    
     if abs(D) > 1:
-        print("❌ Vượt giới hạn IK: D =", D)
-        return
-
-    t2 = -m.atan2(m.sqrt(1 - D**2), D)
-    t1 = m.atan2(y*(l1 + l2*m.cos(t2)) - x*l2*m.sin(t2),
-                 x*(l1 + l2*m.cos(t2)) + y*l2*m.sin(t2))
-
-    t1_deg = t1 * 180 / np.pi
-    t2_deg = t2 * 180 / np.pi
-
-    setLegAngles(left_leg, t1_deg, t2_deg)
-    pos_left = [x, y, z]
+        raise ValueError("Vị trí vượt quá giới hạn cơ khí!")
+    
+    theta2 = -m.atan2(m.sqrt(1 - D**2), D)
+    theta1 = m.atan2(
+        y * (L1 + L2 * m.cos(theta2)) - x * L2 * m.sin(theta2),
+        x * (L1 + L2 * m.cos(theta2)) + y * L2 * m.sin(theta2)
+    )
+    
+    return m.degrees(theta1), m.degrees(theta2)
 
 # ====================
-# 📌 TEST THỰC TẾ
+# 🎯 ĐIỀU KHIỂN CHÂN TRÁI
+# ====================
+def move_left_leg(x, y):
+    try:
+        theta1, theta2 = inverse_kinematics(x, y)
+
+        print(f"Vị trí P({x}, {y}) => θ1 = {theta1:.2f}°, θ2 = {theta2:.2f}°")
+
+        # Cộng offset nếu cần, tùy cấu hình cơ khí cụ thể
+        angle_hip = theta1 + LEFT_OFFSET[0]
+        angle_knee = theta2 + LEFT_OFFSET[1]
+
+        # Giới hạn góc hợp lệ (servo MG996R thường 0–180°)
+        angle_hip = np.clip(angle_hip, 0, 180)
+        angle_knee = np.clip(angle_knee, 0, 180)
+
+        # Đặt PWM
+        pwm.set_pwm(0, 0, angle_to_pwm(angle_hip))   # Servo khớp hip – channel 0
+        pwm.set_pwm(1, 0, angle_to_pwm(angle_knee))  # Servo khớp gối – channel 1
+
+    except ValueError as e:
+        print(f"[❌] Lỗi IK: {e}")
+
+# ====================
+# ▶️ TEST CHẠY
 # ====================
 if __name__ == "__main__":
-    print("==== TEST THỰC TẾ LEFT IK ====")
-
-    test_points = [
-        (0, 120, 0),    # điểm hợp lệ
-    # co tối đa
-    ]
-
-    for x, y, z in test_points:
-        print(f"\n▶️ Test IK tại ({x}, {y}, {z})")
-        LEFT_Inverse_Kinematics(x, y, z)
-        time.sleep(2)
+    # Ví dụ: chân trái chạm đất tại vị trí (x, y) = (100, -100) mm
+    move_left_leg(100, -100)
+    time.sleep(1)
