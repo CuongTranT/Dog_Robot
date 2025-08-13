@@ -1,11 +1,134 @@
 import numpy as np
 import math
+import time
+
+# Import the PCA9685 module
+import Adafruit_PCA9685
 
 # ====================
 # 📐 THÔNG SỐ CƠ KHÍ
 # ====================
 L1 = 10  # cm - chiều dài khớp 1
 L2 = 10  # cm - chiều dài khớp 2
+
+# ====================
+# ⚙️ CẤU HÌNH SERVO
+# ====================
+# Khởi tạo PCA9685
+pwm = Adafruit_PCA9685.PCA9685()
+pwm.set_pwm_freq(60)  # Tần số 60Hz
+
+# Cấu hình kênh servo
+HIP_CHANNEL = 0      # Kênh 0 - Khớp hông
+KNEE_CHANNEL = 1     # Kênh 1 - Khớp gối
+
+# Cấu hình PWM cho servo (0-180° → 150-600)
+SERVO_MIN = 150      # Góc 0°
+SERVO_MAX = 600      # Góc 180°
+
+def angle_to_pwm(angle_deg):
+    """
+    Chuyển đổi góc (độ) sang giá trị PWM
+    
+    Args:
+        angle_deg: Góc tính bằng độ (0-180)
+    
+    Returns:
+        int: Giá trị PWM (150-600)
+    """
+    # Giới hạn góc trong khoảng 0-180°
+    angle_deg = max(0, min(180, angle_deg))
+    
+    # Chuyển đổi góc sang PWM
+    pwm_value = int(SERVO_MIN + (SERVO_MAX - SERVO_MIN) * angle_deg / 180.0)
+    return pwm_value
+
+def set_servo_angle(channel, angle_deg):
+    """
+    Đặt góc cho servo
+    
+    Args:
+        channel: Kênh servo (0 hoặc 1)
+        angle_deg: Góc tính bằng độ
+    """
+    pwm_value = angle_to_pwm(angle_deg)
+    pwm.set_pwm(channel, 0, pwm_value)
+    print(f"Kênh {channel}: Góc {angle_deg:.1f}° → PWM {pwm_value}")
+
+def move_leg_to_position(x, y):
+    """
+    Di chuyển chân đến vị trí (x, y) sử dụng inverse kinematics
+    
+    Args:
+        x, y: Tọa độ điểm cuối (cm)
+    
+    Returns:
+        bool: True nếu thành công, False nếu thất bại
+    """
+    print(f"\n🎯 Di chuyển chân đến vị trí ({x}, {y})")
+    
+    # Tính toán góc khớp
+    theta1, theta2, success = inverse_kinematics(x, y)
+    
+    if not success:
+        print("❌ Không thể đến vị trí này!")
+        return False
+    
+    print(f"✓ Tính toán thành công:")
+    print(f"  θ₁ (khớp hông) = {theta1:.2f}°")
+    print(f"  θ₂ (khớp gối)  = {theta2:.2f}°")
+    print(f"  β = θ₁ + θ₂    = {theta1 + theta2:.2f}°")
+    
+    # Chuyển đổi góc cho servo (có thể cần điều chỉnh tùy cấu hình cơ khí)
+    hip_angle = theta1
+    knee_angle = theta2
+    
+    # Giới hạn góc servo (0-180°)
+    hip_angle = max(0, min(180, hip_angle))
+    knee_angle = max(0, min(180, knee_angle))
+    
+    print(f"\n🔧 Điều khiển servo:")
+    print(f"  Kênh {HIP_CHANNEL} (Hip): {hip_angle:.1f}°")
+    print(f"  Kênh {KNEE_CHANNEL} (Knee): {knee_angle:.1f}°")
+    
+    # Di chuyển servo
+    set_servo_angle(HIP_CHANNEL, hip_angle)
+    time.sleep(0.1)  # Đợi servo ổn định
+    set_servo_angle(KNEE_CHANNEL, knee_angle)
+    
+    print("✅ Hoàn thành di chuyển!")
+    return True
+
+def test_servo_movement():
+    """
+    Test chuyển động servo cơ bản
+    """
+    print("\n🧪 TEST CHUYỂN ĐỘNG SERVO")
+    print("=" * 40)
+    
+    # Test khớp hông (kênh 0)
+    print("Test khớp hông (kênh 0):")
+    set_servo_angle(HIP_CHANNEL, 90)   # Góc giữa
+    time.sleep(1)
+    set_servo_angle(HIP_CHANNEL, 45)   # Góc nhỏ
+    time.sleep(1)
+    set_servo_angle(HIP_CHANNEL, 135)  # Góc lớn
+    time.sleep(1)
+    set_servo_angle(HIP_CHANNEL, 90)   # Về giữa
+    time.sleep(1)
+    
+    # Test khớp gối (kênh 1)
+    print("\nTest khớp gối (kênh 1):")
+    set_servo_angle(KNEE_CHANNEL, 90)  # Góc giữa
+    time.sleep(1)
+    set_servo_angle(KNEE_CHANNEL, 45)  # Góc nhỏ
+    time.sleep(1)
+    set_servo_angle(KNEE_CHANNEL, 135) # Góc lớn
+    time.sleep(1)
+    set_servo_angle(KNEE_CHANNEL, 90)  # Về giữa
+    time.sleep(1)
+    
+    print("✅ Hoàn thành test servo!")
 
 # ====================
 # 🔧 HÀM ĐỘNG HỌC NGHỊCH
@@ -147,22 +270,83 @@ def test_specific_point():
             print(f"   Đặt servo khớp hông: {theta1:.1f}°")
             print(f"   Đặt servo khớp gối:  {theta2:.1f}°")
             print(f"   Góc tổng:            {theta1 + theta2:.1f}°")
+            
+            # Hỏi có muốn di chuyển thực tế không
+            move_real = input("\n🤖 Có muốn di chuyển chân thực tế? (y/n): ").lower()
+            if move_real == 'y':
+                move_leg_to_position(x, y)
         
     except ValueError:
         print("❌ Vui lòng nhập số hợp lệ!")
+
+def interactive_control():
+    """
+    Điều khiển tương tác cho mô hình thực tế
+    """
+    print("\n🎮 ĐIỀU KHIỂN TƯƠNG TÁC")
+    print("=" * 40)
+    
+    while True:
+        print("\nChọn chức năng:")
+        print("1. Test chuyển động servo")
+        print("2. Di chuyển đến vị trí cụ thể")
+        print("3. Điều khiển servo trực tiếp")
+        print("4. Thoát")
+        
+        choice = input("Nhập lựa chọn (1-4): ")
+        
+        if choice == '1':
+            test_servo_movement()
+        elif choice == '2':
+            try:
+                x = float(input("X (cm): "))
+                y = float(input("Y (cm): "))
+                move_leg_to_position(x, y)
+            except ValueError:
+                print("❌ Vui lòng nhập số hợp lệ!")
+        elif choice == '3':
+            try:
+                hip_angle = float(input("Góc khớp hông (0-180°): "))
+                knee_angle = float(input("Góc khớp gối (0-180°): "))
+                
+                set_servo_angle(HIP_CHANNEL, hip_angle)
+                time.sleep(0.1)
+                set_servo_angle(KNEE_CHANNEL, knee_angle)
+                
+            except ValueError:
+                print("❌ Vui lòng nhập số hợp lệ!")
+        elif choice == '4':
+            print("👋 Tạm biệt!")
+            break
+        else:
+            print("❌ Lựa chọn không hợp lệ!")
 
 # ====================
 # ▶️ CHẠY CHƯƠNG TRÌNH
 # ====================
 if __name__ == "__main__":
-    print("🚀 CHƯƠNG TRÌNH TEST INVERSE KINEMATICS")
-    print("   Dành cho mô hình thực tế")
+    print("🚀 CHƯƠNG TRÌNH ĐIỀU KHIỂN CHÂN ROBOT 2 DOF")
+    print("   Sử dụng Adafruit_PCA9685 - Kênh 0: Hip, Kênh 1: Knee")
     print()
     
-    # Chạy tất cả test point
-    run_test_points()
+    try:
+        # Chạy tất cả test point
+        run_test_points()
+        
+        # Test điểm cụ thể
+        test_specific_point()
+        
+        # Điều khiển tương tác
+        interactive_control()
+        
+    except KeyboardInterrupt:
+        print("\n\n⚠️ Chương trình bị dừng bởi người dùng")
+        print("🔒 Đặt servo về vị trí an toàn...")
+        
+        # Đặt servo về vị trí an toàn (90°)
+        set_servo_angle(HIP_CHANNEL, 90)
+        set_servo_angle(KNEE_CHANNEL, 90)
+        
+        print("✅ Đã đặt servo về vị trí an toàn!")
     
-    # Test điểm cụ thể
-    test_specific_point()
-    
-    print("\n✅ Hoàn thành test! Sử dụng kết quả để điều khiển mô hình thực tế.")
+    print("\n✅ Hoàn thành! Sử dụng kết quả để điều khiển mô hình thực tế.")
