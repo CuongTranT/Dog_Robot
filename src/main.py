@@ -17,7 +17,7 @@ def angle2pulse(angle):
 # 🔧 Hàm set kênh 0 quay góc 45 độ
 # ====================
 def set_servo_channel_0_to_45():
-    angle = 180  # độ
+    angle = 170  # độ
     pulse = angle2pulse(angle)
     pwm.set_pwm(0, 0, pulse)
     print(f"✅ Đã set kênh 0 quay tới {angle}° (PWM: {pulse})")
