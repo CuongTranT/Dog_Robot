@@ -19,7 +19,7 @@ pos_left = np.array([0, 0, 0])
 left_leg = 0
 
 # Offset mapping servo (góc cơ học)
-LEFT_OFFSET = np.array([90, 45])  # t1_offset, t2_offset
+LEFT_OFFSET = np.array([0, 180])  # t1_offset, t2_offset
 
 # ====================
 # ⚠️ Mapping góc → xung PWM
