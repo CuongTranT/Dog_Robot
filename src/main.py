@@ -14,8 +14,8 @@ L2 = 10  # cm - chiều dài khớp 2
 # ====================
 # ⚙️ CẤU HÌNH SERVO
 # ====================
-# Khởi tạo PCA9685
-pwm = Adafruit_PCA9685.PCA9685()
+# Khởi tạo PCA9685 (chỉ định busnum=1 cho Raspberry Pi)
+pwm = Adafruit_PCA9685.PCA9685(address=0x40, busnum=1)
 pwm.set_pwm_freq(60)  # Tần số 60Hz
 
 # Cấu hình kênh servo
