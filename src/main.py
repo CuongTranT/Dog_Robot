@@ -83,7 +83,7 @@ if __name__ == "__main__":
     print("==== TEST THỰC TẾ LEFT IK ====")
 
     test_points = [
-        (70, 70, -50),    # điểm hợp lệ
+        (0, 0, -40),    # điểm hợp lệ
     # co tối đa
     ]
 
