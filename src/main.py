@@ -3,75 +3,82 @@ import sys
 import termios
 import tty
 import select
-from board import SCL, SDA
 import busio
+from board import SCL, SDA
 from adafruit_pca9685 import PCA9685
 
 # ===============================
-# ⚙️ Hàm đọc phím không cần enter
+# 🧠 Hàm đọc phím không cần Enter
 # ===============================
 def get_key():
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
     try:
         tty.setcbreak(fd)
-        if select.select([sys.stdin], [], [], 0.05)[0]:
+        if select.select([sys.stdin], [], [], 0.1)[0]:
             return sys.stdin.read(1)
-        return None
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    return None
 
 # ===============================
-# ⚙️ Khởi tạo PWM PCA9685
+# ⚙️ Setup PCA9685
 # ===============================
 i2c = busio.I2C(SCL, SDA)
-pca = PCA9685(i2c)
-pca.frequency = 60
+pwm = PCA9685(i2c)
+pwm.frequency = 50  # Servo thường dùng 50Hz
 
 # ===============================
-# ⚙️ Cấu hình xung PWM cho servo
+# 📐 Hàm chuyển đổi góc → duty_cycle
 # ===============================
-SERVO_MIN = 500   # microsecond (0 độ)
-SERVO_MAX = 2500  # microsecond (180 độ)
-
-def angle_to_pwm(angle):
-    us = SERVO_MIN + (SERVO_MAX - SERVO_MIN) * angle / 180
-    pwm_val = int(us * 4096 / 20000)  # 20ms chu kỳ @50Hz
-    return pwm_val
+def angle_to_duty(angle_deg):
+    # Map góc độ (0~180) thành pulse (500~2500 µs)
+    pulse_us = 500 + (2000 * angle_deg / 180)
+    # PCA9685 dùng 12-bit (4096 mức), 1 chu kỳ = 20ms (20000 µs)
+    duty = int(pulse_us * 4096 / 20000)
+    return duty
 
 # ===============================
-# ⚙️ Các tư thế
+# 🐕 Dữ liệu góc servo theo tư thế
 # ===============================
 POSES = {
-    "stand": [175, 65, 171, 97, 0, 75, 0, 85],
-    "up":    [120, 115, 120, 110, 70, 75, 45, 45],
+    'stand': [175, 65, 171, 97, 0, 75, 0, 85],
+    'up':    [120, 115, 120, 110, 70, 75, 45, 45],
 }
 
-def set_pose(name):
-    if name not in POSES:
-        print(f"Không tìm thấy tư thế '{name}'")
+# ===============================
+# 🚀 Gửi góc tới từng kênh servo
+# ===============================
+def set_pose(pose_name):
+    if pose_name not in POSES:
+        print(f"⚠️ Tư thế '{pose_name}' không tồn tại!")
         return
-    angles = POSES[name]
+    angles = POSES[pose_name]
+    print(f"🦾 Chuyển sang tư thế: {pose_name.upper()}")
     for ch in range(8):
-        pwm_val = angle_to_pwm(angles[ch])
-        pca.channels[ch].duty_cycle = pwm_val
-    print(f"Đã chuyển sang tư thế: {name.upper()}")
+        duty = angle_to_duty(angles[ch])
+        pwm.channels[ch].duty_cycle = duty
+    print(f"✅ Đã set servo: {angles}")
 
 # ===============================
-# 🧠 Chương trình chính
+# 🔁 Vòng lặp chính
 # ===============================
 if __name__ == "__main__":
-    print("🐶 Khởi động Dog Robot...")
-    set_pose("stand")
-    print("Nhấn [w] để UP, [s] để STAND, [q] để thoát")
+    print("🚀 Khởi động Dog Robot...")
+    print("Nhấn [w] → UP | [s] → STAND | [q] → THOÁT")
 
-    while True:
-        key = get_key()
-        if key == 'w':
-            set_pose("up")
-        elif key == 's':
-            set_pose("stand")
-        elif key == 'q':
-            print("Kết thúc.")
-            break
-        time.sleep(0.1)
+    set_pose("stand")  # Tư thế mặc định ban đầu
+
+    try:
+        while True:
+            key = get_key()
+            if key == 'w':
+                set_pose('up')
+            elif key == 's':
+                set_pose('stand')
+            elif key == 'q':
+                print("👋 Tạm biệt!")
+                break
+            time.sleep(0.05)
+    except KeyboardInterrupt:
+        print("\n🛑 Dừng bằng Ctrl+C")
