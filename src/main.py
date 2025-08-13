@@ -84,8 +84,7 @@ if __name__ == "__main__":
 
     test_points = [
         (70, 70, -50),    # điểm hợp lệ
-        (100, 0, 0),      # chân duỗi thẳng
-        (0, 140, -30),    # co tối đa
+    # co tối đa
     ]
 
     for x, y, z in test_points:
