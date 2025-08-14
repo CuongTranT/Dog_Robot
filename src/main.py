@@ -154,11 +154,8 @@ def trot_forward(steps=3, dx=60, lift=35, T=0.35):
         sweep_leg('FL', dx=dx, T=T)
         sweep_leg('RR', dx=dx, T=T)
 
+
 # ================== DEMO ==================
 if __name__ == "__main__":
-    #set_leg_angles(leg, 0, -90)
-    move_foot_xy('RL', 20, -100, elbow='down')
-    # stand_all()
-    # chỉnh nhanh offset/invert cho đúng cơ khí rồi hãy chạy gait
-    # trot_forward(steps=2, dx=50, lift=30, T=0.30)
-    # stand_all()
+    pca.set_pwm(ch_hip,  0, angle2pulse(180))
+    pca.set_pwm(ch_knee, 0, angle2pulse(180))
