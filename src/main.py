@@ -85,6 +85,8 @@ def move_foot_xy(leg, x, y, elbow='down'):
         # ngoài workspace: bỏ qua để không bẻ gãy cơ khí
         return False
     set_leg_angles(leg, th1, th2 - th1)
+    print(th1)
+    print(th2)
     return True
 # ================== POSE & QUỸ ĐẠO ==================
 def stand_all():
