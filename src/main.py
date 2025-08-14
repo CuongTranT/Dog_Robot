@@ -28,24 +28,25 @@ def set_servo_angle(channel, angle_deg):
     pwm.set_pwm(channel, 0, pwm_val)
 
 # ==============================
-# 🤖 Hệ IK 2 bậc: tính α1 và α2
+# 🤖 Hệ IK 2 bậc: tính α1 và α2 (chuẩn theo hình học)
 # ==============================
 def inverse_kinematics(x, y, L1=10.0, L2=10.0):
     D = math.hypot(x, y)
     if D > (L1 + L2):
         raise ValueError("Điểm ngoài tầm với")
 
-    # theta2: góc giữa L1 và L2
-    cos_theta2 = (L1**2 + L2**2 - D**2) / (2 * L1 * L2)
-    theta2 = math.acos(cos_theta2)
+    # alpha2: góc giữa L1 và L2
+    cos_alpha2 = (L1**2 + L2**2 - D**2) / (2 * L1 * L2)
+    alpha2 = math.acos(cos_alpha2)  # rad
 
-    # theta1
-    beta = math.atan2(y, x)
+    # gamma: góc trong tam giác giữa L1 và D
     cos_gamma = (L1**2 + D**2 - L2**2) / (2 * L1 * D)
     gamma = math.acos(cos_gamma)
-    theta1 = beta - gamma
 
-    return math.degrees(theta1), math.degrees(theta2)
+    # alpha1: góc giữa L1 và trục Y (theo chiều ngược kim đồng hồ)
+    alpha1 = math.pi - gamma
+
+    return math.degrees(alpha1), math.degrees(alpha2)
 
 # ==============================
 # 🦿 Điều khiển servo trực tiếp từ IK
@@ -54,18 +55,16 @@ def move_leg(x, y):
     alpha1_deg, alpha2_deg = inverse_kinematics(x, y)
 
     print(f"→ α1 = {alpha1_deg:.2f}°, α2 = {alpha2_deg:.2f}°")
-    # Trái
-    # set_servo_angle(4, 180-alpha1_deg)  # Channel 4: hip
-    # set_servo_angle(5, 180-alpha2_deg)  # Channel 5: knee
-    # # set_servo_angle(4, 180)  # Channel 4: hip
-    # # set_servo_angle(5, 180)  # Channel 5: knee
-    # Phải
-    set_servo_angle(0, alpha1_deg+8.5)  # Channel 0: hip
-    set_servo_angle(1, alpha2_deg+8.5)  # Channel 1: knee
-    set_servo_angle(2, alpha1_deg)  # Channel 0: hip
-    set_servo_angle(3, alpha2_deg)  # Channel 1: knee
-    # set_servo_angle(0, 0)  # Channel 0: hip
-    # set_servo_angle(1, 0)  # Channel 1: knee
+
+    # Phải (channel 0-3)
+    set_servo_angle(0, 180 - alpha1_deg)  # hip phải trước
+    set_servo_angle(1, alpha2_deg)  # knee phải trước
+    set_servo_angle(2, alpha1_deg)  # hip phải sau
+    set_servo_angle(3, alpha2_deg)  # knee phải sau
+
+    # Trái (channel 4-5 nếu cần)
+    # set_servo_angle(4, 180 - alpha1_deg)
+    # set_servo_angle(5, 180 - alpha2_deg)
 
 # ==============================
 # 🧪 Test
@@ -73,7 +72,7 @@ def move_leg(x, y):
 if __name__ == "__main__":
     try:
         while True:
-            move_leg(x=0.0, y=14.0)  # Gập vuông góc
+            move_leg(x=0.0, y=-14.0)  # ví dụ điểm H như hình
             time.sleep(2)
     except KeyboardInterrupt:
         print("\n⛔ Kết thúc")
