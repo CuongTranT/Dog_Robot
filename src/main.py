@@ -55,9 +55,10 @@ def move_leg(x, y):
 
     print(f"→ α1 = {alpha1_deg:.2f}°, α2 = {alpha2_deg:.2f}°")
 
-    set_servo_angle(4, 180-alpha1_deg)   # Channel 4: hip
-    set_servo_angle(5, 180-alpha2_deg)  # Channel 5: knee
-
+    # set_servo_angle(4, 180-alpha1_deg)  # Channel 4: hip
+    # set_servo_angle(5, 180-alpha2_deg)  # Channel 5: knee
+    set_servo_angle(4, 180)  # Channel 4: hip
+    set_servo_angle(5, 180)  # Channel 5: knee
 # ==============================
 # 🧪 Test
 # ==============================
