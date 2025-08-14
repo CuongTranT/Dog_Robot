@@ -43,7 +43,7 @@ def inverse_kinematics(x, y):
 
     # Mapping theo servo
     servo_hip_angle = 180 - alpha1_deg
-    servo_knee_angle = 180 - alpha2_deg
+    servo_knee_angle =  alpha2_deg
 
     if not (0 <= servo_hip_angle <= 180):
         raise ValueError(f"❌ Góc hip vượt giới hạn: {servo_hip_angle:.2f}")
