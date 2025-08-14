@@ -18,7 +18,7 @@ SERVO_MAX = 600
 def clamp(v, lo, hi): return lo if v < lo else (hi if v > hi else v)
 def angle2pulse(deg): return clamp(int(100 + 500*deg/180.0), SERVO_MIN, SERVO_MAX)
 
-pca = Adafruit_PCA9685.PCA9685()
+pca = Adafruit_PCA9685.PCA9685(busnum=1)
 pca.set_pwm_freq(PWM_FREQ)
 
 LEG_CH = {
