@@ -31,9 +31,9 @@ LEG_CH = {
 # Offset & đảo chiều (deg, bool). Điều này thay cho ma trận offset cũ 3DOF
 # invert=True nghĩa là góc cơ khí tăng thì servo phải giảm (đảo chiều).
 LEG_CAL = {
-    'FL': {'off': ( 180,  90), 'inv': (False, False)},
+    'FL': {'off': ( 180,  270), 'inv': (False, False)},
     'FR': {'off': ( 0,  -90), 'inv': ( True,  True)},
-    'RL': {'off': ( 180,  90), 'inv': (False, False)},
+    'RL': {'off': ( 180,  270), 'inv': (False, False)},
     'RR': {'off': ( 0,  -90), 'inv': ( True,  True)},
 }
 
@@ -72,8 +72,8 @@ def set_leg_angles(leg, hip_deg, knee_deg):
     inv_hip, inv_knee = LEG_CAL[leg]['inv']
 
     # Áp offset + đảo chiều nếu cần
-    a1 = ( -hip_deg if inv_hip  else hip_deg ) - off_hip
-    a2 = ( -knee_deg if inv_knee else knee_deg) - off_knee
+    a1 = ( -hip_deg if inv_hip  else hip_deg ) + off_hip
+    a2 = ( -knee_deg if inv_knee else knee_deg) + off_knee
     
     print(a1, a2)
 
