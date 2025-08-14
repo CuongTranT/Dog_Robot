@@ -66,16 +66,19 @@ def ik_2r(x, y, elbow='down'):
     return m.degrees(theta1), m.degrees(theta2), True
 
 # ================== SERVO API ==================
-def move_foot_xy(leg, x, y, elbow='down'):
-    """Điểm đặt chân (x,y) trong local hip -> servo"""
-    th1, th2, ok = ik_2r(-x, y, elbow)
-    if not ok: 
-        # ngoài workspace: bỏ qua để không bẻ gãy cơ khí
-        return False
-    set_leg_angles(leg, th1, th2 - th1)
-    print(th1)
-    print(th2)
-    return True
+def set_leg_angles(leg, hip_deg, knee_deg):
+    ch_hip, ch_knee = LEG_CH[leg]
+    off_hip, off_knee = LEG_CAL[leg]['off']
+    inv_hip, inv_knee = LEG_CAL[leg]['inv']
+
+    # Áp offset + đảo chiều nếu cần
+    a1 = ( -hip_deg if inv_hip  else hip_deg ) + off_hip
+    a2 = ( -knee_deg if inv_knee else knee_deg) + off_knee
+    
+    print(a1, a2)
+
+    pca.set_pwm(ch_hip,  0, angle2pulse(a1))
+    pca.set_pwm(ch_knee, 0, angle2pulse(a2 - a1))
 
 def move_foot_xy(leg, x, y, elbow='down'):
     """Điểm đặt chân (x,y) trong local hip -> servo"""
@@ -83,7 +86,7 @@ def move_foot_xy(leg, x, y, elbow='down'):
     if not ok: 
         # ngoài workspace: bỏ qua để không bẻ gãy cơ khí
         return False
-    set_leg_angles(leg, th1, th2)
+    set_leg_angles(leg, th1, th2 - th1)
     print(th1)
     print(th2)
     return True
