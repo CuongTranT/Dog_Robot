@@ -78,8 +78,8 @@ def set_leg_angles(leg, hip_deg, knee_deg):
     print(a1, a2)
 
     pca.set_pwm(ch_hip,  0, angle2pulse(a1))
-    pca.set_pwm(ch_knee, 0, angle2pulse(a2 - a1))
-
+    pca.set_pwm(ch_knee, 0, angle2pulse(a2))
+    
 def move_foot_xy(leg, x, y, elbow='down'):
     """Điểm đặt chân (x,y) trong local hip -> servo"""
     th1, th2, ok = ik_2r(-x, y, elbow)
