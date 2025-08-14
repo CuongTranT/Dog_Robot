@@ -18,7 +18,7 @@ SERVO_MAX = 600
 def clamp(v, lo, hi): return lo if v < lo else (hi if v > hi else v)
 def angle2pulse(deg): return clamp(int(100 + 500*deg/180.0), SERVO_MIN, SERVO_MAX)
 
-pca = Adafruit_PCA9685.PCA9685(busnum=1)
+pca = Adafruit_PCA9685.PCA9685(busnim=1)
 pca.set_pwm_freq(PWM_FREQ)
 
 LEG_CH = {
@@ -75,7 +75,7 @@ def set_leg_angles(leg, hip_deg, knee_deg):
     a1 = ( -hip_deg if inv_hip  else hip_deg ) + off_hip
     a2 = ( -knee_deg if inv_knee else knee_deg) + off_knee
     
-    #print(a1, a2)
+    print(a1, a2)
 
     pca.set_pwm(ch_hip,  0, angle2pulse(a1))
     pca.set_pwm(ch_knee, 0, angle2pulse(a2))
@@ -87,8 +87,8 @@ def move_foot_xy(leg, x, y, elbow='down'):
         # ngoài workspace: bỏ qua để không bẻ gãy cơ khí
         return False
     set_leg_angles(leg, th1, th2 - th1)
-    # print(th1)
-    # print(th2)
+    print(th1)
+    print(th2)
     return True
 
 # ================== POSE & QUỸ ĐẠO ==================
@@ -157,8 +157,8 @@ def trot_forward(steps=3, dx=60, lift=35, T=0.35):
 # ================== DEMO ==================
 if __name__ == "__main__":
     #set_leg_angles(leg, 0, -90)
-    # move_foot_xy(leg, 0, -100, elbow='down')
-    stand_all()
+    move_foot_xy('RL', -20, -100, elbow='down')
+    # stand_all()
     # chỉnh nhanh offset/invert cho đúng cơ khí rồi hãy chạy gait
     # trot_forward(steps=2, dx=50, lift=30, T=0.30)
     # stand_all()
