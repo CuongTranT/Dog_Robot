@@ -54,11 +54,17 @@ def move_leg(x, y):
     alpha1_deg, alpha2_deg = inverse_kinematics(x, y)
 
     print(f"→ α1 = {alpha1_deg:.2f}°, α2 = {alpha2_deg:.2f}°")
+    # Trái
+    # set_servo_angle(4, 180-alpha1_deg)  # Channel 4: hip
+    # set_servo_angle(5, 180-alpha2_deg)  # Channel 5: knee
+    # # set_servo_angle(4, 180)  # Channel 4: hip
+    # # set_servo_angle(5, 180)  # Channel 5: knee
+    # Phải
+    # set_servo_angle(0, alpha1_deg)  # Channel 0: hip
+    # set_servo_angle(1, alpha2_deg)  # Channel 1: knee
+    set_servo_angle(0, 0)  # Channel 0: hip
+    set_servo_angle(1, 0)  # Channel 1: knee
 
-    set_servo_angle(4, 180-alpha1_deg)  # Channel 4: hip
-    set_servo_angle(5, 180-alpha2_deg)  # Channel 5: knee
-    # set_servo_angle(4, 180)  # Channel 4: hip
-    # set_servo_angle(5, 180)  # Channel 5: knee
 # ==============================
 # 🧪 Test
 # ==============================
