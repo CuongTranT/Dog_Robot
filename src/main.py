@@ -18,7 +18,7 @@ SERVO_MAX = 600
 def clamp(v, lo, hi): return lo if v < lo else (hi if v > hi else v)
 def angle2pulse(deg): return clamp(int(100 + 500*deg/180.0), SERVO_MIN, SERVO_MAX)
 
-pca = Adafruit_PCA9685.PCA9685(busnum=1)
+pca = Adafruit_PCA9685.PCA9685(bunsnum=1)
 pca.set_pwm_freq(PWM_FREQ)
 
 LEG_CH = {
@@ -63,6 +63,7 @@ def ik_2r(x, y, elbow='down'):
     # Dạng atan2 ổn định số:
     theta1 = m.atan2(y*(L1 + L2*m.cos(theta2)) - x*(L2*m.sin(theta2)),
                      x*(L1 + L2*m.cos(theta2)) + y*(L2*m.sin(theta2)))
+    print(m.degrees(theta1), m.degrees(theta2))
     return m.degrees(theta1), m.degrees(theta2), True
 
 # ================== SERVO API ==================
@@ -80,25 +81,15 @@ def set_leg_angles(leg, hip_deg, knee_deg):
     pca.set_pwm(ch_hip,  0, angle2pulse(a1))
     pca.set_pwm(ch_knee, 0, angle2pulse(a2))
 
-LEG_FRAME = {
-    'FL': ( +1, 1),
-    'FR': ( -1, 1),
-    'RL': ( -1, 1),   # <-- RL cần lật trục x
-    'RR': ( +1, 1),
-}
-
 def move_foot_xy(leg, x, y, elbow='down'):
-    """Điểm đặt chân (x,y) trong local hip (theo body của bạn) -> IK frame -> servo"""
-    sx, sy = LEG_FRAME[leg]
-    x_ik, y_ik = sx * x, sy * y  # chuyển về hệ trục mà ik_2r đang dùng
-
-    th1, th2, ok = ik_2r(x_ik, y_ik, elbow)
+    """Điểm đặt chân (x,y) trong local hip -> servo"""
+    th1, th2, ok = ik_2r(x, y, elbow)
     if not ok:
+        # ngoài workspace: bỏ qua để không bẻ gãy cơ khí
         return False
-
-    # Nếu bạn muốn giữ quy ước góc cơ khí cũ theo từng chân, vẫn dùng set_leg_angles như trước
-    set_leg_angles(leg, th1, th2)
-    print(f"{leg}: th1={th1:.2f}, th2={th2:.2f}")
+    set_leg_angles(leg, th1, th2 - th1)
+    print(th1)
+    print(th2)
     return True
 
 # ================== POSE & QUỸ ĐẠO ==================
@@ -167,3 +158,9 @@ def trot_forward(steps=3, dx=60, lift=35, T=0.35):
 # ================== DEMO ==================
 if __name__ == "__main__":
     stand_all()
+    
+    #set_leg_angles(leg, 0, -90)
+    # move_foot_xy(leg, -20, -100, elbow='down')
+    # chỉnh nhanh offset/invert cho đúng cơ khí rồi hãy chạy gait
+    # trot_forward(steps=2, dx=50, lift=30, T=0.30)
+    # stand_all()
