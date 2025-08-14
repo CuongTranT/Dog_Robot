@@ -153,7 +153,8 @@ def trot_forward(steps=3, dx=60, lift=35, T=0.35):
 
 # ================== DEMO ==================
 if __name__ == "__main__":
-    stand_all()
+    move_foot_xy(leg, 0, -100, elbow='down')
+    # stand_all()
     # chỉnh nhanh offset/invert cho đúng cơ khí rồi hãy chạy gait
     # trot_forward(steps=2, dx=50, lift=30, T=0.30)
-    # stand_all()
+    # stand_all()   
