@@ -80,15 +80,25 @@ def set_leg_angles(leg, hip_deg, knee_deg):
     pca.set_pwm(ch_hip,  0, angle2pulse(a1))
     pca.set_pwm(ch_knee, 0, angle2pulse(a2))
 
+LEG_FRAME = {
+    'FL': ( +1, 1),
+    'FR': ( -1, 1),
+    'RL': ( -1, 1),   # <-- RL cần lật trục x
+    'RR': ( +1, 1),
+}
+
 def move_foot_xy(leg, x, y, elbow='down'):
-    """Điểm đặt chân (x,y) trong local hip -> servo"""
-    th1, th2, ok = ik_2r(x, y, elbow)
-    if not ok: 
-        # ngoài workspace: bỏ qua để không bẻ gãy cơ khí
+    """Điểm đặt chân (x,y) trong local hip (theo body của bạn) -> IK frame -> servo"""
+    sx, sy = LEG_FRAME[leg]
+    x_ik, y_ik = sx * x, sy * y  # chuyển về hệ trục mà ik_2r đang dùng
+
+    th1, th2, ok = ik_2r(x_ik, y_ik, elbow)
+    if not ok:
         return False
-    set_leg_angles(leg, th1, th2 - th1)
-    print(th1)
-    print(th2)
+
+    # Nếu bạn muốn giữ quy ước góc cơ khí cũ theo từng chân, vẫn dùng set_leg_angles như trước
+    set_leg_angles(leg, th1, th2)
+    print(f"{leg}: th1={th1:.2f}, th2={th2:.2f}")
     return True
 
 # ================== POSE & QUỸ ĐẠO ==================
@@ -154,6 +164,6 @@ def trot_forward(steps=3, dx=60, lift=35, T=0.35):
         sweep_leg('FL', dx=dx, T=T)
         sweep_leg('RR', dx=dx, T=T)
 
-
+# ================== DEMO ==================
 if __name__ == "__main__":
     stand_all()
