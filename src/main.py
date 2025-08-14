@@ -52,11 +52,29 @@ def set_both_to_180():
     pwm.set_pwm(1, 0, pwm_180)
 
 # ===============================
+# 🧭 Nhập góc CH0 và CH1 thủ công
+def set_manual_angles():
+    try:
+        ang0 = float(input("Nhập góc CH0 (hông): "))
+        ang1 = float(input("Nhập góc CH1 (gối): "))
+        pwm0 = angle_to_pwm(ang0)
+        pwm1 = angle_to_pwm(ang1)
+        print(f"🎯 CH0 → {ang0}° → PWM {pwm0}")
+        print(f"🎯 CH1 → {ang1}° → PWM {pwm1}")
+        pwm.set_pwm(0, 0, pwm0)
+        pwm.set_pwm(1, 0, pwm1)
+    except ValueError:
+        print("⚠️ Góc phải là số thực (float).")
+    except Exception as e:
+        print("❌ Lỗi khi set góc:", e)
+
+# ===============================
 # 📥 Nhập điều khiển từ bàn phím
 def main():
     print("📍 MENU:")
     print("   Nhập '1' → CH0 & CH1 về 180°")
     print("   Nhập '2' → Nhập tọa độ x y (VD: 0 12)")
+    print("   Nhập '3' → Nhập góc CH0 & CH1 thủ công")
     print("   Nhập 'q' → Thoát")
 
     while True:
@@ -79,8 +97,11 @@ def main():
                 y = float(xy[1])
                 move_leg(x, y)
 
+            elif inp.strip() == '3':
+                set_manual_angles()
+
             else:
-                print("⚠️ Vui lòng nhập '1', '2' hoặc 'q'")
+                print("⚠️ Vui lòng nhập '1', '2', '3' hoặc 'q'")
 
         except Exception as e:
             print("❌ Lỗi:", e)
