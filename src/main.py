@@ -44,25 +44,43 @@ def move_leg(x, y, L1=10, L2=10):
     pwm.set_pwm(1, 0, angle_to_pwm(theta2))  # CH1 = gối
 
 # ===============================
-# 📥 Nhập tọa độ từ bàn phím
+# 🔧 Đặt cả hai kênh về 180 độ
+def set_both_to_180():
+    pwm_180 = angle_to_pwm(180)
+    print(f"↪️ Đặt cả CH0 và CH1 về 180° → PWM {pwm_180}")
+    pwm.set_pwm(0, 0, pwm_180)
+    pwm.set_pwm(1, 0, pwm_180)
+
+# ===============================
+# 📥 Nhập điều khiển từ bàn phím
 def main():
-    print("📍 Nhập tọa độ (x, y) để điều khiển chân. Gõ 'q' để thoát.")
+    print("📍 MENU:")
+    print("   Nhập '1' → CH0 & CH1 về 180°")
+    print("   Nhập '2' → Nhập tọa độ x y (VD: 0 12)")
+    print("   Nhập 'q' → Thoát")
 
     while True:
         try:
-            inp = input("Nhập x y (vd: 0 12): ")
+            inp = input("\nNhập lựa chọn: ")
+
             if inp.lower() == 'q':
                 print("👋 Thoát.")
                 break
 
-            parts = inp.strip().split()
-            if len(parts) != 2:
-                print("⚠️ Vui lòng nhập đúng định dạng: x y")
-                continue
+            elif inp.strip() == '1':
+                set_both_to_180()
 
-            x = float(parts[0])
-            y = float(parts[1])
-            move_leg(x, y)
+            elif inp.strip() == '2':
+                xy = input("Nhập x y (VD: 0 12): ").strip().split()
+                if len(xy) != 2:
+                    print("⚠️ Vui lòng nhập đúng định dạng: x y")
+                    continue
+                x = float(xy[0])
+                y = float(xy[1])
+                move_leg(x, y)
+
+            else:
+                print("⚠️ Vui lòng nhập '1', '2' hoặc 'q'")
 
         except Exception as e:
             print("❌ Lỗi:", e)
