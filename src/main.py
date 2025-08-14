@@ -156,5 +156,5 @@ def trot_forward(steps=3, dx=60, lift=35, T=0.35):
 
 
 if __name__ == "__main__":
-    pca.set_pwm(4,  0, angle2pulse(180))
-    pca.set_pwm(5, 0, angle2pulse(180))
+    pca.set_pwm(4,  0, angle2pulse(135))
+    pca.set_pwm(5, 0, angle2pulse(90))
