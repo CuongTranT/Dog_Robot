@@ -72,11 +72,13 @@ def set_leg_angles(leg, hip_deg, knee_deg):
     inv_hip, inv_knee = LEG_CAL[leg]['inv']
 
     # Áp offset + đảo chiều nếu cần
-    a1 = ( -hip_deg if inv_hip  else hip_deg ) + off_hip
-    a2 = ( -knee_deg if inv_knee else knee_deg) + off_knee
+    a1 = ( -hip_deg if inv_hip  else hip_deg ) - off_hip
+    a2 = ( -knee_deg if inv_knee else knee_deg) - off_knee
+    
+    print(a1, a2)
 
     pca.set_pwm(ch_hip,  0, angle2pulse(a1))
-    pca.set_pwm(ch_knee, 0, angle2pulse(a2))
+    pca.set_pwm(ch_knee, 0, angle2pulse(a2 - a1))
 
 def move_foot_xy(leg, x, y, elbow='down'):
     """Điểm đặt chân (x,y) trong local hip -> servo"""
