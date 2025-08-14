@@ -82,7 +82,7 @@ def set_leg_angles(leg, hip_deg, knee_deg):
 
 def move_foot_xy(leg, x, y, elbow='down'):
     """Điểm đặt chân (x,y) trong local hip -> servo"""
-    th1, th2, ok = ik_2r(-x, y, elbow)
+    th1, th2, ok = ik_2r(x, y, elbow)
     if not ok: 
         # ngoài workspace: bỏ qua để không bẻ gãy cơ khí
         return False
