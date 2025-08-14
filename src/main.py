@@ -60,8 +60,8 @@ def move_leg(x, y):
     # # set_servo_angle(4, 180)  # Channel 4: hip
     # # set_servo_angle(5, 180)  # Channel 5: knee
     # Phải
-    set_servo_angle(0, alpha1_deg)  # Channel 0: hip
-    set_servo_angle(1, alpha2_deg)  # Channel 1: knee
+    set_servo_angle(0, alpha1_deg+8.5)  # Channel 0: hip
+    set_servo_angle(1, alpha2_deg+8.5)  # Channel 1: knee
     set_servo_angle(2, alpha1_deg)  # Channel 0: hip
     set_servo_angle(3, alpha2_deg)  # Channel 1: knee
     # set_servo_angle(0, 0)  # Channel 0: hip
