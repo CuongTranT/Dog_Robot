@@ -18,60 +18,56 @@ def angle_to_pwm(angle):
     return pulse
 
 # ===============================
-# ⚙️ Thông số chân robot
-L1 = 10.0  # cm
-L2 = 10.0  # cm
-
-def inverse_kinematics(x, y):
+# 📐 Tính IK và điều khiển servo
+def move_leg(x, y, L1=10, L2=10):
     D = math.hypot(x, y)
     if D > (L1 + L2):
-        raise ValueError("❌ Vị trí quá xa!")
+        print("🚫 Điểm nằm ngoài vùng làm việc")
+        return
 
-    # --- Động học ngược
-    cos_alpha2 = (L1**2 + L2**2 - D**2) / (2 * L1 * L2)
-    alpha2 = math.acos(cos_alpha2)
+    # GÓC GỐI (theta2)
+    cos_a2 = (L1**2 + L2**2 - D**2) / (2 * L1 * L2)
+    alpha2 = math.degrees(math.acos(cos_a2))
+    theta2 = 180 - alpha2  # mapping theo hình bạn gửi
 
-    cos_beta = (L1**2 + D**2 - L2**2) / (2 * L1 * D)
-    beta = math.acos(cos_beta)
+    # GÓC HÔNG (theta1)
+    cos_a1 = (L1**2 + D**2 - L2**2) / (2 * L1 * D)
+    alpha1 = math.degrees(math.acos(cos_a1))
+    theta1 = 90 + alpha1  # mapping theo sơ đồ trục
 
-    theta = math.atan2(y, x)
-    alpha1 = theta - beta
+    # In kết quả
+    print(f"↪️ Góc Hông (CH0): {theta1:.2f}° → PWM {angle_to_pwm(theta1)}")
+    print(f"↪️ Góc Gối (CH1): {theta2:.2f}° → PWM {angle_to_pwm(theta2)}")
 
-    # Đổi sang độ
-    alpha1_deg = math.degrees(alpha1)
-    alpha2_deg = math.degrees(alpha2)
-
-    # Mapping theo servo
-    servo_hip_angle = 180
-    servo_knee_angle =180
-
-    if not (0 <= servo_hip_angle <= 180):
-        raise ValueError(f"❌ Góc hip vượt giới hạn: {servo_hip_angle:.2f}")
-    if not (0 <= servo_knee_angle <= 180):
-        raise ValueError(f"❌ Góc knee vượt giới hạn: {servo_knee_angle:.2f}")
-
-    return servo_hip_angle, servo_knee_angle
-
-def set_servo_angle(channel, angle_deg):
-    pwm_val = angle_to_pwm(angle_deg)
-    pwm.set_pwm(channel, 0, pwm_val)
+    # Điều khiển servo
+    pwm.set_pwm(0, 0, angle_to_pwm(theta1))  # CH0 = hông
+    pwm.set_pwm(1, 0, angle_to_pwm(theta2))  # CH1 = gối
 
 # ===============================
-# 🚀 Chạy thử
+# 📥 Nhập tọa độ từ bàn phím
+def main():
+    print("📍 Nhập tọa độ (x, y) để điều khiển chân. Gõ 'q' để thoát.")
+
+    while True:
+        try:
+            inp = input("Nhập x y (vd: 0 12): ")
+            if inp.lower() == 'q':
+                print("👋 Thoát.")
+                break
+
+            parts = inp.strip().split()
+            if len(parts) != 2:
+                print("⚠️ Vui lòng nhập đúng định dạng: x y")
+                continue
+
+            x = float(parts[0])
+            y = float(parts[1])
+            move_leg(x, y)
+
+        except Exception as e:
+            print("❌ Lỗi:", e)
+
+# ===============================
+# 🚀 Chạy chương trình
 if __name__ == "__main__":
-    try:
-        print("🔧 Nhập tọa độ chân cần đến (x, y) [cm]:")
-        x = float(input("x = "))
-        y = float(input("y = "))
-
-        hip_deg, knee_deg = inverse_kinematics(x, y)
-
-        print(f"\n🎯 Kết quả:")
-        print(f" → Kênh 0 (hip):  {hip_deg:.2f}°")
-        print(f" → Kênh 1 (knee): {knee_deg:.2f}°")
-
-        set_servo_angle(0, hip_deg)
-        set_servo_angle(1, knee_deg)
-
-    except Exception as e:
-        print("❗ Lỗi:", e)
+    main()
