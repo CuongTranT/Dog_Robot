@@ -71,7 +71,7 @@ def move_leg(x, y):
 if __name__ == "__main__":
     try:
         while True:
-            move_leg(x=0.0, y=10.0)  # Gập vuông góc
+            move_leg(x=0.0, y=8.0)  # Gập vuông góc
             time.sleep(2)
     except KeyboardInterrupt:
         print("\n⛔ Kết thúc")
