@@ -130,6 +130,95 @@ def sit_down():
 # ==============================
 # 🧪 Test các chức năng
 # ==============================
+def test_interactive():
+    """Giao diện tương tác để test tọa độ x, y và xem góc servo"""
+    print("\n🎯 === TEST TỌA ĐỘ TƯƠNG TÁC ===")
+    print("Nhập tọa độ x, y để test góc servo")
+    print("Nhập 'q' để thoát")
+    print("Nhập 'all' để di chuyển tất cả chân")
+    print("Nhập 'stand' để đứng thẳng")
+    print("Nhập 'sit' để ngồi xuống")
+    
+    while True:
+        try:
+            user_input = input("\n📝 Nhập tọa độ (x,y) hoặc lệnh: ").strip().lower()
+            
+            if user_input == 'q':
+                print("👋 Thoát chế độ test")
+                break
+            elif user_input == 'all':
+                x = float(input("Nhập x: "))
+                y = float(input("Nhập y: "))
+                print(f"🦿 Di chuyển tất cả chân đến ({x}, {y})")
+                move_all_legs(x, y)
+            elif user_input == 'stand':
+                stand_up()
+            elif user_input == 'sit':
+                sit_down()
+            else:
+                # Xử lý nhập tọa độ trực tiếp
+                if ',' in user_input:
+                    x_str, y_str = user_input.split(',')
+                    x = float(x_str.strip())
+                    y = float(y_str.strip())
+                else:
+                    x = float(input("Nhập x: "))
+                    y = float(input("Nhập y: "))
+                
+                print(f"\n🔍 === PHÂN TÍCH TỌA ĐỘ ({x}, {y}) ===")
+                
+                # Tính toán IK
+                try:
+                    alpha1_deg, alpha2_deg = inverse_kinematics(x, y)
+                    print(f"✅ IK thành công:")
+                    print(f"   α1 (hip) = {alpha1_deg:.2f}°")
+                    print(f"   α2 (knee) = {alpha2_deg:.2f}°")
+                    
+                    # Hiển thị góc servo cho từng chân
+                    print(f"\n📊 GÓC SERVO CHO TỪNG CHÂN:")
+                    legs_info = [
+                        ("Chân trước phải", 0, 90 + alpha1_deg, 90 + alpha2_deg),
+                        ("Chân trước trái", 1, 90 - alpha1_deg, 90 - alpha2_deg),
+                        ("Chân sau phải", 2, 90 + alpha1_deg, 90 + alpha2_deg),
+                        ("Chân sau trái", 3, 90 - alpha1_deg, 90 - alpha2_deg)
+                    ]
+                    
+                    for leg_name, leg_id, hip_angle, knee_angle in legs_info:
+                        print(f"   {leg_name}: Hip={hip_angle:.1f}°, Knee={knee_angle:.1f}°")
+                    
+                    # Hỏi người dùng có muốn di chuyển chân nào không
+                    print(f"\n🤔 Bạn có muốn di chuyển chân nào không?")
+                    print("0: Chân trước phải, 1: Chân trước trái")
+                    print("2: Chân sau phải, 3: Chân sau trái")
+                    print("all: Tất cả chân, skip: Bỏ qua")
+                    
+                    move_choice = input("Lựa chọn: ").strip().lower()
+                    
+                    if move_choice == 'all':
+                        print(f"🦿 Di chuyển tất cả chân đến ({x}, {y})")
+                        move_all_legs(x, y)
+                    elif move_choice in ['0', '1', '2', '3']:
+                        leg_id = int(move_choice)
+                        print(f"🦿 Di chuyển chân {leg_id} đến ({x}, {y})")
+                        move_leg(leg_id, x, y)
+                    elif move_choice == 'skip':
+                        print("⏭️ Bỏ qua di chuyển")
+                    else:
+                        print("❌ Lựa chọn không hợp lệ")
+                        
+                except ValueError as e:
+                    print(f"❌ Lỗi IK: {e}")
+                    print("💡 Gợi ý: Kiểm tra tọa độ có trong tầm với không")
+                    print(f"   Tầm với: {abs(10-10)} đến {10+10} cm")
+                    
+        except ValueError:
+            print("❌ Lỗi: Vui lòng nhập số hợp lệ")
+        except KeyboardInterrupt:
+            print("\n⛔ Thoát chế độ test")
+            break
+        except Exception as e:
+            print(f"❌ Lỗi không xác định: {e}")
+
 if __name__ == "__main__":
     try:
         print("🤖 Khởi động robot 4 chân...")
@@ -158,6 +247,9 @@ if __name__ == "__main__":
         time.sleep(2)
         
         print("\n✅ Test hoàn thành!")
+        
+        # Chuyển sang chế độ tương tác
+        test_interactive()
         
     except KeyboardInterrupt:
         print("\n⛔ Kết thúc chương trình")
