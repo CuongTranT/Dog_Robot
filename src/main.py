@@ -30,39 +30,33 @@ def set_servo_angle(channel, angle_deg):
 # ==============================
 # 🤖 Hệ IK 2 bậc: tính α1 và α2
 # ==============================
-def inverse_kinematics_correct(x=0.0, y=10.0, L1=10.0, L2=10.0):
+def inverse_kinematics(x, y, L1=10.0, L2=10.0):
     D = math.hypot(x, y)
     if D > (L1 + L2):
-        raise ValueError("⚠️ Điểm ngoài tầm với")
+        raise ValueError("Điểm ngoài tầm với")
 
-    cos_a2 = (L1**2 + L2**2 - D**2) / (2 * L1 * L2)
-    alpha2 = math.acos(cos_a2)
+    # theta2: góc giữa L1 và L2
+    cos_theta2 = (L1**2 + L2**2 - D**2) / (2 * L1 * L2)
+    theta2 = math.acos(cos_theta2)
 
-    beta = math.atan2(-y, x)  # Trục y hướng xuống
-    gamma = math.acos((L1**2 + D**2 - L2**2) / (2 * L1 * D))
-    alpha1 = beta - gamma
+    # theta1
+    beta = math.atan2(y, x)
+    cos_gamma = (L1**2 + D**2 - L2**2) / (2 * L1 * D)
+    gamma = math.acos(cos_gamma)
+    theta1 = beta - gamma
 
-    return math.degrees(alpha1), math.degrees(alpha2)
+    return math.degrees(theta1), math.degrees(theta2)
 
 # ==============================
-# 🧩 Mapping thực tế servo
+# 🦿 Điều khiển servo trực tiếp từ IK
 # ==============================
-HIP_OFFSET = 90
-HIP_SIGN = -1
-
-KNEE_OFFSET = 0
-KNEE_SIGN = 1
-
 def move_leg(x, y):
-    alpha1_deg, alpha2_deg = inverse_kinematics_correct(x, y)
+    alpha1_deg, alpha2_deg = inverse_kinematics(x, y)
 
-    hip_angle = HIP_OFFSET + HIP_SIGN * alpha1_deg
-    knee_angle = KNEE_OFFSET + KNEE_SIGN * alpha2_deg
+    print(f"→ α1 = {alpha1_deg:.2f}°, α2 = {alpha2_deg:.2f}°")
 
-    print(f"→ α1 = {alpha1_deg:.2f}°, α2 = {alpha2_deg:.2f}° | servo_hip = {hip_angle:.2f}°, servo_knee = {knee_angle:.2f}°")
-
-    set_servo_angle(4, hip_angle)   # Channel 0: hip
-    set_servo_angle(5, knee_angle)  # Channel 1: knee
+    set_servo_angle(4, alpha1_deg)   # Channel 4: hip
+    set_servo_angle(5, alpha2_deg)  # Channel 5: knee
 
 # ==============================
 # 🧪 Test
