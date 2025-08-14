@@ -7,7 +7,7 @@ L1 = 100.0  # mm - chiều dài đùi (thay bằng số của bạn)
 L2 = 100.0  # mm - chiều dài cẳng (thay bằng số của bạn)
 
 # Tư thế đứng mặc định của mỗi chân (tính theo local hip, mm)
-STAND_X = -20.0
+STAND_X = 20.0
 STAND_Y = -160.0  # âm = thấp hơn hip
 
 # PCA9685
