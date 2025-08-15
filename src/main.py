@@ -149,8 +149,8 @@ string = [(0, -10), (10, -10), (2, -10), (3, -10)]  # Dáng đi
 # ▶️ Vòng lặp điều khiển
 # ========================
 if __name__ == "__main__":
-    print("🚀 Đang đưa robot về vị trí khởi động...")  # 🟢 Tự động chuyển về start_pose
-    move_all_legs(start_pose)
+    # print("🚀 Đang đưa robot về vị trí khởi động...")  # 🟢 Tự động chuyển về start_pose
+    # move_all_legs(start_pose)
     # while True:
     #     cmd = input("Nhấn (w=đứng, s=ngồi, x=bắt đầu, q=thoát): ").strip().lower()
     #     if cmd == "q":
@@ -169,8 +169,8 @@ if __name__ == "__main__":
     #         print("❗ Lệnh không hợp lệ. Dùng: w / s / x / q.")
     # set_servo_angle(0, 10)  # RF Hip
     # set_servo_angle(1, 10)  # RF Knee
-    # set_servo_angle(2, 30, 1, 0)  # RR Hip
-    # set_servo_angle(3, 68, 1, 0)  # RR Knee
+    set_servo_angle(2, 30, 1, 0)  # RR Hip
+    set_servo_angle(3, 77, 1, 0)  # RR Knee
     # set_servo_angle(4, 102,1,0)  # LF Hip
     # set_servo_angle(5, 125,1,0)  # LF Knee
     # set_servo_angle(6, 102, 1, 0)  # LR Hip
