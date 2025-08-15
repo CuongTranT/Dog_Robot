@@ -141,16 +141,16 @@ def move_all_legs(pos_list):
 # ========================
 # 🧱 Các dáng chân
 # ========================
-start_pose = [(0, -19)] * 4   # Dáng khởi động, input 1
+start_pose = [(-10, -10)] * 4   # Dáng khởi động, input 1
 sit_pose   = [(8, -8)]  * 4   # Dáng ngồi, input 2
 stand_pose = [(0, -16)] * 4  # Dáng đứng
 string = [(0, -10), (10, -10), (2, -10), (3, -10)]  # Dáng đi
 # ========================
 # ▶️ Vòng lặp điều khiển
 # ========================
-# if __name__ == "__main__":
-    # print("🚀 Đang đưa robot về vị trí khởi động...")  # 🟢 Tự động chuyển về start_pose
-    # move_all_legs(start_pose)
+if __name__ == "__main__":
+    print("🚀 Đang đưa robot về vị trí khởi động...")  # 🟢 Tự động chuyển về start_pose
+    move_all_legs(start_pose)
     # while True:
     #     cmd = input("Nhấn (w=đứng, s=ngồi, x=bắt đầu, q=thoát): ").strip().lower()
     #     if cmd == "q":
@@ -175,26 +175,26 @@ string = [(0, -10), (10, -10), (2, -10), (3, -10)]  # Dáng đi
     # set_servo_angle(5, 125,1,0)  # LF Knee
     # set_servo_angle(6, 102, 1, 0)  # LR Hip
     # set_servo_angle(7, 128, 1, 0)  # LR Knee
-if __name__ == "__main__":
-    while True:
-        try:
-            print("\n📟 Điều khiển servo thủ công:")
-            ch = int(input("🔘 Nhập kênh servo (0–15, -1 để thoát): "))
-            if ch == -1:
-                print("👋 Kết thúc chương trình.")
-                break
-            if not 0 <= ch <= 15:
-                print("❌ Kênh không hợp lệ! Chọn từ 0 đến 15.")
-                continue
+# if __name__ == "__main__":
+#     while True:
+#         try:
+#             print("\n📟 Điều khiển servo thủ công:")
+#             ch = int(input("🔘 Nhập kênh servo (0–15, -1 để thoát): "))
+#             if ch == -1:
+#                 print("👋 Kết thúc chương trình.")
+#                 break
+#             if not 0 <= ch <= 15:
+#                 print("❌ Kênh không hợp lệ! Chọn từ 0 đến 15.")
+#                 continue
 
-            angle = float(input("🎯 Nhập góc (0–180 độ): "))
-            if not 0 <= angle <= 180:
-                print("❌ Góc không hợp lệ! Nhập từ 0 đến 180.")
-                continue
+#             angle = float(input("🎯 Nhập góc (0–180 độ): "))
+#             if not 0 <= angle <= 180:
+#                 print("❌ Góc không hợp lệ! Nhập từ 0 đến 180.")
+#                 continue
 
-            set_servo_angle(ch, angle, 1, 0)  # Mặc định w=1, b=0
-            print(f"✅ Đã điều khiển servo kênh {ch} đến {angle:.1f}°")
+#             set_servo_angle(ch, angle, 1, 0)  # Mặc định w=1, b=0
+#             print(f"✅ Đã điều khiển servo kênh {ch} đến {angle:.1f}°")
 
-        except ValueError:
-            print("⚠️ Nhập sai định dạng! Hãy thử lại.")
+#         except ValueError:
+#             print("⚠️ Nhập sai định dạng! Hãy thử lại.")
 
