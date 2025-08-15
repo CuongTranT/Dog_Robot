@@ -32,10 +32,10 @@ def compute_theta_right(x, y,):
     x_k = L1 * math.cos(math.radians(theta1))
     y_k = L1 * math.sin(math.radians(theta1))
 
-    Deg_hip_P = 180 + theta1
-    Deg_knee_P = theta2 / 2
+    Deg_hip_p = 180 + theta1
+    Deg_knee_p = theta2 / 2
 
-    return theta1, theta2, Deg_hip_P , Deg_knee_P , x_k, y_k, True
+    return theta1, theta2, Deg_hip_p , Deg_knee_p , x_k, y_k, True
 
 # ========================
 # 📐 Tính IK chân trái
