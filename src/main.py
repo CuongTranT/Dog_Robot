@@ -103,7 +103,6 @@ def move_all_legs(pos_list):
         # print(f"✔️ RF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(0, deg_hip_p , 1, 0)
         set_servo_angle(1, deg_knee_p , 1,  0 )
-        print( "hip0", deg_hip_p, "knee0", deg_knee_p)
     else:
         print("❌ RF: Ngoài tầm với")
 
@@ -114,7 +113,7 @@ def move_all_legs(pos_list):
         # print(f"✔️ RR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(2, deg_hip_p, 0.83, 5)
         set_servo_angle(3, deg_knee_p,0.83, 5)
-        print( "hip1", deg_hip_p, "knee1", deg_knee_p)
+        print( "hip1_p", deg_hip_p, "knee1", deg_knee_p)
     else:
         print("❌ RR: Ngoài tầm với")
 
@@ -125,7 +124,7 @@ def move_all_legs(pos_list):
         # print(f"✔️ LF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(4, deg_hip, 1, 0)
         set_servo_angle(5, deg_knee, 1, 0)
-        print( "hip1", deg_hip, "knee1", deg_knee)
+        print( "hip1_T", deg_hip, "knee1", deg_knee)
     else:
         print("❌ LF: Ngoài tầm với")
 
