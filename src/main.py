@@ -148,7 +148,7 @@ string = [(0, -10), (10, -10), (2, -10), (3, -10)]  # Dáng đi
 # ========================
 # ▶️ Vòng lặp điều khiển
 # ========================
-if __name__ == "__main__":
+# if __name__ == "__main__":
     # print("🚀 Đang đưa robot về vị trí khởi động...")  # 🟢 Tự động chuyển về start_pose
     # move_all_legs(start_pose)
     # while True:
@@ -169,10 +169,32 @@ if __name__ == "__main__":
     #         print("❗ Lệnh không hợp lệ. Dùng: w / s / x / q.")
     # set_servo_angle(0, 10)  # RF Hip
     # set_servo_angle(1, 10)  # RF Knee
-    set_servo_angle(2, 75.25, 1, 0)  # RR Hip
-    set_servo_angle(3, 28, 1, 0)  # RR Knee
+    # set_servo_angle(2, 75.25, 1, 0)  # RR Hip
+    # set_servo_angle(3, 28, 1, 0)  # RR Knee
     # set_servo_angle(4, 102,1,0)  # LF Hip
     # set_servo_angle(5, 125,1,0)  # LF Knee
     # set_servo_angle(6, 102, 1, 0)  # LR Hip
     # set_servo_angle(7, 128, 1, 0)  # LR Knee
+if __name__ == "__main__":
+    while True:
+        try:
+            print("\n📟 Điều khiển servo thủ công:")
+            ch = int(input("🔘 Nhập kênh servo (0–15, -1 để thoát): "))
+            if ch == -1:
+                print("👋 Kết thúc chương trình.")
+                break
+            if not 0 <= ch <= 15:
+                print("❌ Kênh không hợp lệ! Chọn từ 0 đến 15.")
+                continue
+
+            angle = float(input("🎯 Nhập góc (0–180 độ): "))
+            if not 0 <= angle <= 180:
+                print("❌ Góc không hợp lệ! Nhập từ 0 đến 180.")
+                continue
+
+            set_servo_angle(ch, angle, 1, 0)  # Mặc định w=1, b=0
+            print(f"✅ Đã điều khiển servo kênh {ch} đến {angle:.1f}°")
+
+        except ValueError:
+            print("⚠️ Nhập sai định dạng! Hãy thử lại.")
 
