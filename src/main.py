@@ -9,36 +9,60 @@ L1 = 10.0  # cm
 L2 = 10.0  # cm
 
 # ========================
-# 📐 Tính IK + góc servo
+# 📐 Tính IK chân phải
 # ========================
-def compute_theta_angles(x, y):
+def compute_theta_right(x, y):
     P = math.hypot(x, y)
-
     if P > (L1 + L2):
-        return None, None, None, None, None, None, None, False
+        return None, None, None, None, None, None, False
 
     cos_sigma = (L1**2 + L2**2 - P**2) / (2 * L1 * L2)
-    cos_sigma = max(-1, min(1, cos_sigma))
-    sigma_rad = math.acos(cos_sigma)
+    sigma_rad = math.acos(max(-1, min(1, cos_sigma)))
     sigma_deg = math.degrees(sigma_rad)
     theta2 = 180 - sigma_deg
 
     beta_rad = math.atan2(y, x)
     beta_deg = math.degrees(beta_rad)
     cos_alpha1 = (L1**2 + P**2 - L2**2) / (2 * L1 * P)
-    cos_alpha1 = max(-1, min(1, cos_alpha1))
-    alpha1_rad = math.acos(cos_alpha1)
+    alpha1_rad = math.acos(max(-1, min(1, cos_alpha1)))
     alpha1_deg = math.degrees(alpha1_rad)
     theta1 = beta_deg - alpha1_deg
 
-    theta1_rad = math.radians(theta1)
-    x_k = L1 * math.cos(theta1_rad)
-    y_k = L1 * math.sin(theta1_rad)
+    x_k = L1 * math.cos(math.radians(theta1))
+    y_k = L1 * math.sin(math.radians(theta1))
 
-    Deg_servo_1 = theta2 / 2
-    Deg_servo_0 = 180 + theta1
+    Deg_servo_0 = 180 + theta1   # hip phải
+    Deg_servo_1 = theta2 / 2     # knee phải
 
     return theta1, theta2, Deg_servo_0, Deg_servo_1, x_k, y_k, True
+
+# ========================
+# 📐 Tính IK chân trái
+# ========================
+def compute_theta_left(x, y):
+    P = math.hypot(x, y)
+    if P > (L1 + L2):
+        return None, None, None, None, None, None, False
+
+    cos_sigma = (L1**2 + L2**2 - P**2) / (2 * L1 * L2)
+    sigma_rad = math.acos(max(-1, min(1, cos_sigma)))
+    sigma_deg = math.degrees(sigma_rad)
+    theta2 = 180 - sigma_deg
+
+    beta_rad = math.atan2(y, x)
+    beta_deg = math.degrees(beta_rad)
+    cos_alpha1 = (L1**2 + P**2 - L2**2) / (2 * L1 * P)
+    alpha1_rad = math.acos(max(-1, min(1, cos_alpha1)))
+    alpha1_deg = math.degrees(alpha1_rad)
+    theta1 = beta_deg - alpha1_deg
+
+    x_k = L1 * math.cos(math.radians(theta1))
+    y_k = L1 * math.sin(math.radians(theta1))
+
+    Deg_servo_4 = -theta1        # hip trái (đảo chiều)
+    Deg_servo_5 = theta2         # knee trái (giữ nguyên)
+
+    return theta1, theta2, Deg_servo_4, Deg_servo_5, x_k, y_k, True
 
 # ========================
 # 📐 Chuyển độ → PWM
@@ -62,32 +86,49 @@ def set_servo_angle(channel, angle_deg):
 # ========================
 # 🔧 Khởi tạo PCA9685
 # ========================
-pwm = Adafruit_PCA9685.PCA9685(busnum = 1)
+pwm = Adafruit_PCA9685.PCA9685(busnum=1)
 pwm.set_pwm_freq(60)  # Hz
 
 # ========================
-# 🧪 Nhập toạ độ từ bàn phím
+# 🧪 Nhập tọa độ từ bàn phím
 # ========================
 def run_interactive():
     while True:
         try:
-            x = float(input("Nhập x (cm, q để thoát): "))
+            leg = input("Nhập chân (L/R hoặc q để thoát): ").strip().lower()
+            if leg == "q":
+                print("🔚 Thoát.")
+                break
+            x = float(input("Nhập x (cm): "))
             y = float(input("Nhập y (cm): "))
         except ValueError:
-            print("🔚 Kết thúc chương trình.")
-            break
-
-        theta1, theta2, deg0, deg1, xk, yk, ok = compute_theta_angles(x, y)
-        if not ok:
-            print("❌ Điểm ngoài tầm với!")
+            print("⛔ Sai định dạng.")
             continue
 
-        print(f"✔️ Gửi servo:")
-        print(f"  Kênh 0 (hip):  {deg0:.2f}°")
-        print(f"  Kênh 1 (knee): {deg1:.2f}°")
+        if leg == "r":
+            theta1, theta2, deg0, deg1, xk, yk, ok = compute_theta_right(x, y)
+            if not ok:
+                print("❌ Điểm ngoài tầm với!")
+                continue
+            print(f"✔️ Chân phải:")
+            print(f"  Servo 0 (hip):  {deg0:.2f}°")
+            print(f"  Servo 1 (knee): {deg1:.2f}°")
+            set_servo_angle(0, deg0)
+            set_servo_angle(1, deg1)
 
-        set_servo_angle(0, deg0)
-        set_servo_angle(1, deg1)
+        elif leg == "l":
+            theta1, theta2, deg4, deg5, xk, yk, ok = compute_theta_left(x, y)
+            if not ok:
+                print("❌ Điểm ngoài tầm với!")
+                continue
+            print(f"✔️ Chân trái:")
+            print(f"  Servo 4 (hip):  {deg4:.2f}°")
+            print(f"  Servo 5 (knee): {deg5:.2f}°")
+            set_servo_angle(4, deg4)
+            set_servo_angle(5, deg5)
+
+        else:
+            print("❗ Vui lòng nhập 'L' hoặc 'R'.")
 
 # ========================
 # ▶️ Gọi chạy
