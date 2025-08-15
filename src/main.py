@@ -169,7 +169,7 @@ if __name__ == "__main__":
     #         print("❗ Lệnh không hợp lệ. Dùng: w / s / x / q.")
     # set_servo_angle(0, 10)  # RF Hip
     # set_servo_angle(1, 10)  # RF Knee
-    set_servo_angle(2, 70, 1, 0)  # RR Hip
+    set_servo_angle(2, 73.25, 1, 0)  # RR Hip
     set_servo_angle(3, 25, 1, 0)  # RR Knee
     # set_servo_angle(4, 102,1,0)  # LF Hip
     # set_servo_angle(5, 125,1,0)  # LF Knee
