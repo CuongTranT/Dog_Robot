@@ -174,7 +174,7 @@ if __name__ == "__main__":
     # set_servo_angle(2, 80, 1, 0)  # RR Hip
     # set_servo_angle(3, 58.5, 1, 0)  # RR Knee
     set_servo_angle(4, 102,1,0)  # LF Hip
-    set_servo_angle(5, 125,1,0)  # LF Knee
+    set_servo_angle(5, 130,1,0)  # LF Knee
     # # set_servo_angle(6, 180)  # LR Hip
     # # set_servo_angle(7, 180)  # LR Knee
 
