@@ -11,7 +11,7 @@ L2 = 10.0  # cm
 # ========================
 # 📐 Tính IK chân phải
 # ========================
-def compute_theta_right(x, y, b):
+def compute_theta_right(x, y,):
 
     P = math.hypot(x, y)
     if P > (L1 + L2):
@@ -79,9 +79,9 @@ def angle_to_pwm(angle_deg):
 # ========================
 # 🚦 Điều khiển servo
 # ========================
-def set_servo_angle(channel, angle_deg):
+def set_servo_angle(channel, angle_deg, b):
     angle_deg = max(0, min(180, angle_deg))
-    pwm_val = angle_to_pwm(angle_deg)
+    pwm_val = angle_to_pwm(angle_deg + b)
     pwm.set_pwm(channel, 0, pwm_val)
 
 # ========================
