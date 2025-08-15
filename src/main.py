@@ -69,22 +69,30 @@ pwm = PCA9685(i2c)
 pwm.frequency = 60  # MG996R hoạt động tốt @60Hz
 
 # ========================
-# ▶️ Gọi thử với tọa độ
+# 🧪 Nhập toạ độ từ bàn phím
 # ========================
-def run_servo_with_ik(x, y):
-    theta1, theta2, deg0, deg1, xk, yk, ok = compute_theta_angles(x, y)
-    if not ok:
-        print("❌ Điểm ngoài tầm với")
-        return
+def run_interactive():
+    while True:
+        try:
+            x = float(input("Nhập x (cm, q để thoát): "))
+            y = float(input("Nhập y (cm): "))
+        except ValueError:
+            print("🔚 Kết thúc chương trình.")
+            break
 
-    print(f"✔️ Gửi servo:")
-    print(f"  Kênh 0 (hông):  {deg0:.2f}°")
-    print(f"  Kênh 1 (gối):   {deg1:.2f}°")
+        theta1, theta2, deg0, deg1, xk, yk, ok = compute_theta_angles(x, y)
+        if not ok:
+            print("❌ Điểm ngoài tầm với!")
+            continue
 
-    set_servo_angle(0, deg0)
-    set_servo_angle(1, deg1)
+        print(f"✔️ Gửi servo:")
+        print(f"  Kênh 0 (hip):  {deg0:.2f}°")
+        print(f"  Kênh 1 (knee): {deg1:.2f}°")
+
+        set_servo_angle(0, deg0)
+        set_servo_angle(1, deg1)
 
 # ========================
-# 💡 Gọi thử
+# ▶️ Chạy vòng lặp nhập liệu
 # ========================
-run_servo_with_ik(0, -16)
+run_interactive()
