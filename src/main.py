@@ -1,8 +1,6 @@
 import math
 import time
-import board
-import busio
-from adafruit_pca9685 import PCA9685
+import Adafruit_PCA9685
 
 # ========================
 # ⚙️ Chiều dài các khâu
@@ -46,8 +44,8 @@ def compute_theta_angles(x, y):
 # 📐 Chuyển độ → PWM
 # ========================
 def angle_to_pwm(angle_deg):
-    pulse_min = 500    # us (0°)
-    pulse_max = 2500   # us (180°)
+    pulse_min = 500     # us
+    pulse_max = 2500    # us
     pulse_us = pulse_min + (pulse_max - pulse_min) * angle_deg / 180
     pulse_len = 1000000.0 / 60 / 4096  # tick time @60Hz
     pwm_val = int(pulse_us / pulse_len)
@@ -62,11 +60,10 @@ def set_servo_angle(channel, angle_deg):
     pwm.set_pwm(channel, 0, pwm_val)
 
 # ========================
-# 🔧 Khởi tạo PCA9685 (Raspberry Pi)
+# 🔧 Khởi tạo PCA9685
 # ========================
-i2c = busio.I2C(board.SCL, board.SDA)
-pwm = PCA9685(i2c)
-pwm.frequency = 60  # MG996R hoạt động tốt @60Hz
+pwm = Adafruit_PCA9685.PCA9685()
+pwm.set_pwm_freq(60)  # Hz
 
 # ========================
 # 🧪 Nhập toạ độ từ bàn phím
@@ -93,6 +90,6 @@ def run_interactive():
         set_servo_angle(1, deg1)
 
 # ========================
-# ▶️ Chạy vòng lặp nhập liệu
+# ▶️ Gọi chạy
 # ========================
 run_interactive()
