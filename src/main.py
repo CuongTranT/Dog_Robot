@@ -125,6 +125,7 @@ def move_all_legs(pos_list):
         # print(f"✔️ LF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(4, deg_hip, 1, 0)
         set_servo_angle(5, deg_knee, 1, 0)
+        print( "hip1", deg_hip, "knee1", deg_knee)
     else:
         print("❌ LF: Ngoài tầm với")
 
