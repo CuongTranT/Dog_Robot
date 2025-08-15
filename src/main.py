@@ -121,7 +121,7 @@ stand_pose = [(0, -16)] * 4  # Dáng đứng
 # ========================
 # ▶️ Vòng lặp điều khiển
 # ========================
-# if __name__ == "__main__":
+if __name__ == "__main__":
 #     print("🚀 Đang đưa robot về vị trí khởi động...")
 #     move_all_legs(start_pose)  # 🟢 Tự động chuyển về start_pose
 
