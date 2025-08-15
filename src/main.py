@@ -100,7 +100,7 @@ def move_all_legs(pos_list):
     x, y = pos_list[0]
     _, _, deg_hip, deg_knee, _, _, ok = compute_theta_right(x, y)
     if ok:
-        print(f"✔️ RF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
+        # print(f"✔️ RF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(0, deg_hip , 1, 0)
         set_servo_angle(1, deg_knee , 1,  0 )
     else:
@@ -110,7 +110,7 @@ def move_all_legs(pos_list):
     x, y = pos_list[1]
     deg_hip, deg_knee, _, _, theta1, theta2,  ok = compute_theta_right(x, y)
     if ok:
-        print(f"✔️ RR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
+        # print(f"✔️ RR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(2, deg_hip, 1, 0)
         set_servo_angle(3, deg_knee, 1,0)
         print( "hip", theta1, "knee", theta2)
@@ -121,7 +121,7 @@ def move_all_legs(pos_list):
     x, y = pos_list[2]
     theta1, theta2, deg_hip, deg_knee, _, _, ok = compute_theta_left(x, y)
     if ok:
-        print(f"✔️ LF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
+        # print(f"✔️ LF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(4, deg_hip, 1, 0)
         set_servo_angle(5, deg_knee, 1, 0)
         print( "hip", theta1, "knee", theta2)
@@ -132,7 +132,7 @@ def move_all_legs(pos_list):
     x, y = pos_list[3]
     theta1, theta2, deg_hip, deg_knee, _, _, ok = compute_theta_left(x, y)
     if ok:
-        print(f"✔️ LR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
+        # print(f"✔️ LR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(6, deg_hip, 1, 0)
         set_servo_angle(7, deg_knee, 1, 0)
         print( "hip", theta1, "knee", theta2)
