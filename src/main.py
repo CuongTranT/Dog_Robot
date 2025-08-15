@@ -111,9 +111,9 @@ def move_all_legs(pos_list):
     deg_hip, deg_knee, _, _, theta1, theta2,  ok = compute_theta_right(x, y)
     if ok:
         # print(f"✔️ RR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
-        set_servo_angle(2, deg_hip, 0.79, 3.75)
-        set_servo_angle(3, deg_knee, 1.43,-6)
-        print( "hip", theta1, "knee", theta2)
+        set_servo_angle(2, deg_hip, 1, 0)
+        set_servo_angle(3, deg_knee, 1,0)
+        print( "hip", deg_hip, "knee", deg_knee)
     else:
         print("❌ RR: Ngoài tầm với")
 
@@ -151,7 +151,7 @@ string = [(0, -10), (10, -10), (2, -10), (3, -10)]  # Dáng đi
 # ========================
 if __name__ == "__main__":
     print("🚀 Đang đưa robot về vị trí khởi động...")  # 🟢 Tự động chuyển về start_pose
-    move_all_legs(stand_pose)
+    move_all_legs(start_pose)
     # while True:
     #     cmd = input("Nhấn (w=đứng, s=ngồi, x=bắt đầu, q=thoát): ").strip().lower()
     #     if cmd == "q":
