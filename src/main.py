@@ -142,7 +142,7 @@ def move_all_legs(pos_list):
 # ========================
 # 🧱 Các dáng chân
 # ========================
-start_pose = [(0, -10)] * 4   # Dáng khởi động, input 1
+start_pose = [(10, -10)] * 4   # Dáng khởi động, input 1
 sit_pose   = [(8, -8)]  * 4   # Dáng ngồi, input 2
 stand_pose = [(0, -16)] * 4  # Dáng đứng
 
@@ -150,8 +150,8 @@ stand_pose = [(0, -16)] * 4  # Dáng đứng
 # ▶️ Vòng lặp điều khiển
 # ========================
 if __name__ == "__main__":
-    # print("🚀 Đang đưa robot về vị trí khởi động...")
-    # move_all_legs(start_pose)  # 🟢 Tự động chuyển về start_pose
+    print("🚀 Đang đưa robot về vị trí khởi động...")
+    move_all_legs(start_pose)  # 🟢 Tự động chuyển về start_pose
 
     # while True:
     #     cmd = input("Nhấn (w=đứng, s=ngồi, x=bắt đầu, q=thoát): ").strip().lower()
@@ -175,6 +175,6 @@ if __name__ == "__main__":
     # set_servo_angle(3, 58.5, 1, 0)  # RR Knee
     # set_servo_angle(4, 150,1,0)  # LF Hip
     # set_servo_angle(5, 120,1,0)  # LF Knee
-    set_servo_angle(6, 165, 1, 0)  # LR Hip
-    set_servo_angle(7, 125, 1, 0)  # LR Knee
+    # set_servo_angle(6, 165, 1, 0)  # LR Hip
+    # set_servo_angle(7, 125, 1, 0)  # LR Knee
 
