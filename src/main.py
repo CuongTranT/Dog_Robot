@@ -31,10 +31,10 @@ def compute_theta_right(x, y):
     x_k = L1 * math.cos(math.radians(theta1))
     y_k = L1 * math.sin(math.radians(theta1))
 
-    Deg_servo_0 = 180 + theta1   # hip phải
-    Deg_servo_1 = theta2 / 2     # knee phải
+    Deg_hip = 180 + theta1
+    Deg_knee = theta2
 
-    return theta1, theta2, Deg_servo_0, Deg_servo_1, x_k, y_k, True
+    return theta1, theta2, Deg_hip, Deg_knee, x_k, y_k, True
 
 # ========================
 # 📐 Tính IK chân trái
@@ -59,10 +59,10 @@ def compute_theta_left(x, y):
     x_k = L1 * math.cos(math.radians(theta1))
     y_k = L1 * math.sin(math.radians(theta1))
 
-    Deg_servo_4 = -theta1        # hip trái (đảo chiều)
-    Deg_servo_5 = theta2         # knee trái (giữ nguyên)
+    Deg_hip = -theta1
+    Deg_knee = theta2
 
-    return theta1, theta2, Deg_servo_4, Deg_servo_5, x_k, y_k, True
+    return theta1, theta2, Deg_hip, Deg_knee, x_k, y_k, True
 
 # ========================
 # 📐 Chuyển độ → PWM
@@ -87,50 +87,50 @@ def set_servo_angle(channel, angle_deg):
 # 🔧 Khởi tạo PCA9685
 # ========================
 pwm = Adafruit_PCA9685.PCA9685(busnum=1)
-pwm.set_pwm_freq(60)  # Hz
+pwm.set_pwm_freq(60)
 
 # ========================
-# 🧪 Nhập tọa độ từ bàn phím
+# 🦿 Điều khiển toàn bộ chân
 # ========================
-def run_interactive():
-    while True:
-        try:
-            leg = input("Nhập chân (L/R hoặc q để thoát): ").strip().lower()
-            if leg == "q":
-                print("🔚 Thoát.")
-                break
-            x = float(input("Nhập x (cm): "))
-            y = float(input("Nhập y (cm): "))
-        except ValueError:
-            print("⛔ Sai định dạng.")
+def move_all_legs(pos_list):
+    # pos_list chứa 4 tuple (x, y) cho từng chân: [RF, RR, LF, LR]
+    legs = [
+        ('RF', compute_theta_right, 0, 1),
+        ('RR', compute_theta_right, 2, 3),  
+        ('LF', compute_theta_left, 4, 5),
+        ('LR', compute_theta_left, 6, 7),
+    ]
+
+    for i, (name, func, hip_ch, knee_ch) in enumerate(legs):
+        x, y = pos_list[i]
+        theta1, theta2, deg_hip, deg_knee, _, _, ok = func(x, y)
+        if not ok:
+            print(f"❌ {name}: Ngoài tầm với")
             continue
+        print(f"✔️ {name}: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
+        set_servo_angle(hip_ch, deg_hip)
+        set_servo_angle(knee_ch, deg_knee)
 
-        if leg == "r":
-            theta1, theta2, deg0, deg1, xk, yk, ok = compute_theta_right(x, y)
-            if not ok:
-                print("❌ Điểm ngoài tầm với!")
-                continue
-            print(f"✔️ Chân phải:")
-            print(f"  Servo 0 (hip):  {deg0:.2f}°")
-            print(f"  Servo 1 (knee): {deg1:.2f}°")
-            set_servo_angle(0, deg0)
-            set_servo_angle(1, deg1)
+# ========================
+# 🧱 Dáng ngồi & đứng
+# ========================
+sit_pose   = [(0, -8)] * 4    # RF, RR, LF, LR
+stand_pose = [(0, -16)] * 4
 
-        elif leg == "l":
-            theta1, theta2, deg4, deg5, xk, yk, ok = compute_theta_left(x, y)
-            if not ok:
-                print("❌ Điểm ngoài tầm với!")
-                continue
-            print(f"✔️ Chân trái:")
-            print(f"  Servo 4 (hip):  {deg4:.2f}°")
-            print(f"  Servo 5 (knee): {deg5:.2f}°")
-            set_servo_angle(4, deg4)
-            set_servo_angle(5, deg5)
-
+# ========================
+# ▶️ Vòng lặp điều khiển
+# ========================
+if __name__ == "__main__":
+    while True:
+        cmd = input("Nhấn (w=đứng, s=ngồi, q=thoát): ").strip().lower()
+        if cmd == "q":
+            print(" Kết thúc.")
+            break
+        elif cmd == "s":
+            print("Đang chuyển sang dáng ngồi...")
+            move_all_legs(sit_pose)
+        elif cmd == "w":
+            print("Đang đứng lên...")
+            move_all_legs(stand_pose)
         else:
-            print("❗ Vui lòng nhập 'L' hoặc 'R'.")
-
-# ========================
-# ▶️ Gọi chạy
-# ========================
-run_interactive()
+            print(" Lệnh không hợp lệ. Dùng: w / s / q.")
