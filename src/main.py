@@ -32,7 +32,7 @@ def compute_theta_right(x, y):
     y_k = L1 * math.sin(math.radians(theta1))
 
     Deg_hip = 180 + theta1
-    Deg_knee = theta2
+    Deg_knee = theta2 / 2
 
     return theta1, theta2, Deg_hip, Deg_knee, x_k, y_k, True
 
