@@ -108,34 +108,34 @@ def move_all_legs(pos_list):
 
     # === Chân phải sau (RR) ===
     x, y = pos_list[1]
-    _, _, deg_hip, deg_knee, _, _, ok = compute_theta_right(x, y)
+    deg_hip, deg_knee, _, _, theta1, theta2,  ok = compute_theta_right(x, y)
     if ok:
         print(f"✔️ RR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(2, deg_hip, 1, 0)
         set_servo_angle(3, deg_knee, 1,0)
-        print( "hip", deg_hip, "knee", deg_knee)
+        print( "hip", theta1, "knee", theta2)
     else:
         print("❌ RR: Ngoài tầm với")
 
     # === Chân trái trước (LF) ===
     x, y = pos_list[2]
-    _, _, deg_hip, deg_knee, _, _, ok = compute_theta_left(x, y)
+    theta1, theta2, deg_hip, deg_knee, _, _, ok = compute_theta_left(x, y)
     if ok:
         print(f"✔️ LF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(4, deg_hip, 1, 0)
         set_servo_angle(5, deg_knee, 1, 0)
-        print( "hip", deg_hip, "knee", deg_knee)
+        print( "hip", theta1, "knee", theta2)
     else:
         print("❌ LF: Ngoài tầm với")
 
     # === Chân trái sau (LR) ===
     x, y = pos_list[3]
-    _, _, deg_hip, deg_knee, _, _, ok = compute_theta_left(x, y)
+    theta1, theta2, deg_hip, deg_knee, _, _, ok = compute_theta_left(x, y)
     if ok:
         print(f"✔️ LR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(6, deg_hip, 1, 0)
         set_servo_angle(7, deg_knee, 1, 0)
-        print( "hip", deg_hip, "knee", deg_knee)
+        print( "hip", theta1, "knee", theta2)
     else:
         print("❌ LR: Ngoài tầm với")
 
@@ -150,8 +150,8 @@ stand_pose = [(0, -16)] * 4  # Dáng đứng
 # ▶️ Vòng lặp điều khiển
 # ========================
 if __name__ == "__main__":
-    # print("🚀 Đang đưa robot về vị trí khởi động...")
-    # move_all_legs(start_pose)  # 🟢 Tự động chuyển về start_pose
+    print("🚀 Đang đưa robot về vị trí khởi động...")
+    move_all_legs(start_pose)  # 🟢 Tự động chuyển về start_pose
 
     # while True:
     #     cmd = input("Nhấn (w=đứng, s=ngồi, x=bắt đầu, q=thoát): ").strip().lower()
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     # set_servo_angle(0, 10)  # RF Hip
     # set_servo_angle(1, 10)  # RF Knee
     # set_servo_angle(2, 75,1,0)  # RR Hip
-    set_servo_angle(3, 60,1,0)  # RR Knee
+    # set_servo_angle(3, 60,1,0)  # RR Knee
     # # set_servo_angle(4, 180)  # LF Hip
     # # set_servo_angle(5, 180)  # LF Knee
     # # set_servo_angle(6, 180)  # LR Hip
