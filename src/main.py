@@ -32,10 +32,10 @@ def compute_theta_right(x, y,):
     x_k = L1 * math.cos(math.radians(theta1))
     y_k = L1 * math.sin(math.radians(theta1))
 
-    Deg_hip = 180 + theta1
-    Deg_knee = theta2 / 2
+    Deg_hip_P = 180 + theta1
+    Deg_knee_P = theta2 / 2
 
-    return theta1, theta2, Deg_hip , Deg_knee , x_k, y_k, True
+    return theta1, theta2, Deg_hip_P , Deg_knee_P , x_k, y_k, True
 
 # ========================
 # 📐 Tính IK chân trái
@@ -98,22 +98,22 @@ def move_all_legs(pos_list):
     
     # === Chân phải trước (RF) ===
     x, y = pos_list[0]
-    _, _, deg_hip, deg_knee, _, _, ok = compute_theta_right(x, y)
+    _, _, deg_hip_p, deg_knee_p, _, _, ok = compute_theta_right(x, y)
     if ok:
         # print(f"✔️ RF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
-        set_servo_angle(0, deg_hip , 1, 0)
-        set_servo_angle(1, deg_knee , 1,  0 )
+        set_servo_angle(0, deg_hip_p , 1, 0)
+        set_servo_angle(1, deg_knee_p , 1,  0 )
     else:
         print("❌ RF: Ngoài tầm với")
 
     # === Chân phải sau (RR) ===
     x, y = pos_list[1]
-    deg_hip, deg_knee, _, _, theta1, theta2,  ok = compute_theta_right(x, y)
+    deg_hip_p, deg_knee_p, _, _, theta1, theta2,  ok = compute_theta_right(x, y)
     if ok:
         # print(f"✔️ RR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
-        set_servo_angle(2, deg_hip, 1, 0)
-        set_servo_angle(3, deg_knee, 1,0)
-        print( "hip", deg_hip, "knee", deg_knee)
+        set_servo_angle(2, deg_hip_p, 1, 0)
+        set_servo_angle(3, deg_knee_p, 1,0)
+        print( "hip", deg_hip_p, "knee", deg_knee_p)
     else:
         print("❌ RR: Ngoài tầm với")
 
@@ -124,7 +124,6 @@ def move_all_legs(pos_list):
         # print(f"✔️ LF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(4, deg_hip, 1, 0)
         set_servo_angle(5, deg_knee, 1, 0)
-        print( "hip", theta1, "knee", theta2)
     else:
         print("❌ LF: Ngoài tầm với")
 
@@ -135,7 +134,6 @@ def move_all_legs(pos_list):
         # print(f"✔️ LR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(6, deg_hip, 1, 0)
         set_servo_angle(7, deg_knee, 1, 0)
-        print( "hip", theta1, "knee", theta2)
     else:
         print("❌ LR: Ngoài tầm với")
 
