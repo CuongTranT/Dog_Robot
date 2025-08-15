@@ -142,7 +142,7 @@ def move_all_legs(pos_list):
 # ========================
 # 🧱 Các dáng chân
 # ========================
-start_pose = [(0, -10)] * 4   # Dáng khởi động, input 1
+start_pose = [(10, -10)] * 4   # Dáng khởi động, input 1
 sit_pose   = [(8, -8)]  * 4   # Dáng ngồi, input 2
 stand_pose = [(0, -16)] * 4  # Dáng đứng
 
@@ -171,8 +171,8 @@ if __name__ == "__main__":
     #         print("❗ Lệnh không hợp lệ. Dùng: w / s / x / q.")
     # set_servo_angle(0, 10)  # RF Hip
     # set_servo_angle(1, 10)  # RF Knee
-    set_servo_angle(2, 27.5, 1, 0)  # RR Hip
-    set_servo_angle(3, 70,1,0)  # RR Knee
+    # set_servo_angle(2, 27.5, 1, 0)  # RR Hip
+    # set_servo_angle(3, 70,1,0)  # RR Knee
     # # set_servo_angle(4, 180)  # LF Hip
     # # set_servo_angle(5, 180)  # LF Knee
     # # set_servo_angle(6, 180)  # LR Hip
