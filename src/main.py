@@ -93,23 +93,47 @@ pwm.set_pwm_freq(60)
 # 🦿 Điều khiển toàn bộ chân
 # ========================
 def move_all_legs(pos_list):
-    # pos_list chứa 4 tuple (x, y) cho từng chân: [RF, RR, LF, LR]
-    legs = [
-        ('RF', compute_theta_right, 0, 1),
-        ('RR', compute_theta_right, 2, 3),
-        ('LF', compute_theta_left, 4, 5),
-        ('LR', compute_theta_left, 6, 7),
-    ]
+    # pos_list = [ (x_RF, y_RF), (x_RR, y_RR), (x_LF, y_LF), (x_LR, y_LR) ]
+    
+    # === Chân phải trước (RF) ===
+    x, y = pos_list[0]
+    _, _, deg_hip, deg_knee, _, _, ok = compute_theta_right(x, y)
+    if ok:
+        print(f"✔️ RF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
+        set_servo_angle(0, deg_hip + 10)
+        set_servo_angle(1, deg_knee + 10)
+    else:
+        print("❌ RF: Ngoài tầm với")
 
-    for i, (name, func, hip_ch, knee_ch) in enumerate(legs):
-        x, y = pos_list[i]
-        theta1, theta2, deg_hip, deg_knee, _, _, ok = func(x, y)
-        if not ok:
-            print(f"❌ {name}: Ngoài tầm với")
-            continue
-        print(f"✔️ {name}: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
-        set_servo_angle(hip_ch, deg_hip)
-        set_servo_angle(knee_ch, deg_knee)
+    # === Chân phải sau (RR) ===
+    x, y = pos_list[1]
+    _, _, deg_hip, deg_knee, _, _, ok = compute_theta_right(x, y)
+    if ok:
+        print(f"✔️ RR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
+        set_servo_angle(2, deg_hip)
+        set_servo_angle(3, deg_knee)
+    else:
+        print("❌ RR: Ngoài tầm với")
+
+    # === Chân trái trước (LF) ===
+    x, y = pos_list[2]
+    _, _, deg_hip, deg_knee, _, _, ok = compute_theta_left(x, y)
+    if ok:
+        print(f"✔️ LF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
+        set_servo_angle(4, deg_hip)
+        set_servo_angle(5, deg_knee)
+    else:
+        print("❌ LF: Ngoài tầm với")
+
+    # === Chân trái sau (LR) ===
+    x, y = pos_list[3]
+    _, _, deg_hip, deg_knee, _, _, ok = compute_theta_left(x, y)
+    if ok:
+        print(f"✔️ LR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
+        set_servo_angle(6, deg_hip)
+        set_servo_angle(7, deg_knee)
+    else:
+        print("❌ LR: Ngoài tầm với")
 
 # ========================
 # 🧱 Các dáng chân
