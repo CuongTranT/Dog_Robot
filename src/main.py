@@ -111,8 +111,8 @@ def move_all_legs(pos_list):
     deg_hip, deg_knee, _, _, theta1, theta2,  ok = compute_theta_right(x, y)
     if ok:
         # print(f"✔️ RR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
-        set_servo_angle(2, deg_hip, 1, 0)
-        set_servo_angle(3, deg_knee, 1,0)
+        set_servo_angle(2, deg_hip, 0.79, 3.75)
+        set_servo_angle(3, deg_knee, 1.43,-6)
         print( "hip", theta1, "knee", theta2)
     else:
         print("❌ RR: Ngoài tầm với")
@@ -150,8 +150,8 @@ stand_pose = [(0, -16)] * 4  # Dáng đứng
 # ▶️ Vòng lặp điều khiển
 # ========================
 if __name__ == "__main__":
-    # print("🚀 Đang đưa robot về vị trí khởi động...")
-    # move_all_legs(start_pose)  # 🟢 Tự động chuyển về start_pose
+    print("🚀 Đang đưa robot về vị trí khởi động...")
+    move_all_legs(start_pose)  # 🟢 Tự động chuyển về start_pose
 
     # while True:
     #     cmd = input("Nhấn (w=đứng, s=ngồi, x=bắt đầu, q=thoát): ").strip().lower()
@@ -173,8 +173,8 @@ if __name__ == "__main__":
     # set_servo_angle(1, 10)  # RF Knee
     # set_servo_angle(2, 80, 1, 0)  # RR Hip
     # set_servo_angle(3, 58.5, 1, 0)  # RR Knee
-    set_servo_angle(4, 102,1,0)  # LF Hip
-    set_servo_angle(5, 125,1,0)  # LF Knee
-    set_servo_angle(6, 102, 1, 0)  # LR Hip
-    set_servo_angle(7, 128, 1, 0)  # LR Knee
+    # set_servo_angle(4, 102,1,0)  # LF Hip
+    # set_servo_angle(5, 125,1,0)  # LF Knee
+    # set_servo_angle(6, 102, 1, 0)  # LR Hip
+    # set_servo_angle(7, 128, 1, 0)  # LR Knee
 
