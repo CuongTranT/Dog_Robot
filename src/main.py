@@ -79,9 +79,9 @@ def angle_to_pwm(angle_deg):
 # ========================
 # 🚦 Điều khiển servo
 # ========================
-def set_servo_angle(channel, angle_deg, b):
+def set_servo_angle(channel, angle_deg, w, b):
     angle_deg = max(0, min(180, angle_deg))
-    pwm_val = angle_to_pwm(angle_deg + b)
+    pwm_val =  angle_to_pwm(w *angle_deg + b)
     pwm.set_pwm(channel, 0, pwm_val)
 
 # ========================
@@ -122,7 +122,7 @@ def move_all_legs(pos_list):
     if ok:
         print(f"✔️ LF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(4, deg_hip, 0)
-        set_servo_angle(5, deg_knee, +12)
+        set_servo_angle(5, deg_knee,-1, +168)
     else:
         print("❌ LF: Ngoài tầm với")
 
@@ -132,7 +132,7 @@ def move_all_legs(pos_list):
     if ok:
         print(f"✔️ LR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(6, deg_hip, 0)
-        set_servo_angle(7, deg_knee, +12)
+        set_servo_angle(7, deg_knee,-1, +168)
     else:
         print("❌ LR: Ngoài tầm với")
 
