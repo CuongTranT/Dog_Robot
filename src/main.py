@@ -11,7 +11,8 @@ L2 = 10.0  # cm
 # ========================
 # 📐 Tính IK chân phải
 # ========================
-def compute_theta_right(x, y):
+def compute_theta_right(x, y, b):
+
     P = math.hypot(x, y)
     if P > (L1 + L2):
         return None, None, None, None, None, None, False
@@ -34,7 +35,7 @@ def compute_theta_right(x, y):
     Deg_hip = 180 + theta1
     Deg_knee = theta2 / 2
 
-    return theta1, theta2, Deg_hip, Deg_knee, x_k, y_k, True
+    return theta1, theta2, Deg_hip + b, Deg_knee + b, x_k, y_k, True
 
 # ========================
 # 📐 Tính IK chân trái
@@ -100,8 +101,8 @@ def move_all_legs(pos_list):
     _, _, deg_hip, deg_knee, _, _, ok = compute_theta_right(x, y)
     if ok:
         print(f"✔️ RF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
-        set_servo_angle(0, deg_hip + 10)
-        set_servo_angle(1, deg_knee -5 )
+        set_servo_angle(0, deg_hip + 10, 0)
+        set_servo_angle(1, deg_knee -5,  0 )
     else:
         print("❌ RF: Ngoài tầm với")
 
@@ -145,32 +146,32 @@ stand_pose = [(0, -16)] * 4  # Dáng đứng
 # ========================
 # ▶️ Vòng lặp điều khiển
 # ========================
-# if __name__ == "__main__":
-#     print("🚀 Đang đưa robot về vị trí khởi động...")
-#     move_all_legs(start_pose)  # 🟢 Tự động chuyển về start_pose
+if __name__ == "__main__":
+    print("🚀 Đang đưa robot về vị trí khởi động...")
+    move_all_legs(start_pose)  # 🟢 Tự động chuyển về start_pose
 
-#     while True:
-#         cmd = input("Nhấn (w=đứng, s=ngồi, x=bắt đầu, q=thoát): ").strip().lower()
-#         if cmd == "q":
-#             print("👋 Kết thúc.")
-#             break
-#         elif cmd == "s":
-#             print("🪑 Đang chuyển sang dáng ngồi...")
-#             move_all_legs(sit_pose)
-#         elif cmd == "w":
-#             print("📏 Đang đứng lên...")
-#             move_all_legs(stand_pose)
-#         elif cmd == "x":
-#             print("🟢 Đưa về vị trí bắt đầu...")
-#             move_all_legs(start_pose)
-#         else:
-#             print("❗ Lệnh không hợp lệ. Dùng: w / s / x / q.")
-set_servo_angle(0, 0)  # LF Hip
-set_servo_angle(1, 0)  # LF Knee
-set_servo_angle(2, 0)  # LR Hip
-set_servo_angle(3, 0)  # LR Knee
-set_servo_angle(4, 180)  # LF Hip
-set_servo_angle(5, 180)  # LF Knee
-set_servo_angle(6, 180)  # LR Hip
-set_servo_angle(7, 180)  # LR Knee
+    while True:
+        cmd = input("Nhấn (w=đứng, s=ngồi, x=bắt đầu, q=thoát): ").strip().lower()
+        if cmd == "q":
+            print("👋 Kết thúc.")
+            break
+        elif cmd == "s":
+            print("🪑 Đang chuyển sang dáng ngồi...")
+            move_all_legs(sit_pose)
+        elif cmd == "w":
+            print("📏 Đang đứng lên...")
+            move_all_legs(stand_pose)
+        elif cmd == "x":
+            print("🟢 Đưa về vị trí bắt đầu...")
+            move_all_legs(start_pose)
+        else:
+            print("❗ Lệnh không hợp lệ. Dùng: w / s / x / q.")
+# set_servo_angle(0, 0)  # LF Hip
+# set_servo_angle(1, 0)  # LF Knee
+# set_servo_angle(2, 0)  # LR Hip
+# set_servo_angle(3, 0)  # LR Knee
+# set_servo_angle(4, 180)  # LF Hip
+# set_servo_angle(5, 180)  # LF Knee
+# set_servo_angle(6, 180)  # LR Hip
+# set_servo_angle(7, 180)  # LR Knee
 
