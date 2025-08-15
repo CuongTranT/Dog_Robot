@@ -109,7 +109,7 @@ def move_all_legs(pos_list):
 
     # === Chân phải sau (RR) ===
     x, y = pos_list[1]
-    deg_hip_p, deg_knee_p, _, _, theta1, theta2,  ok = compute_theta_right(x, y)
+    _, _, deg_hip_p, deg_knee_p, _, _, ok = compute_theta_right(x, y)
     if ok:
         # print(f"✔️ RR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(2, deg_hip_p, 1, 0)
