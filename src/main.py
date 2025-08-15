@@ -171,8 +171,8 @@ if __name__ == "__main__":
     #         print("❗ Lệnh không hợp lệ. Dùng: w / s / x / q.")
     # set_servo_angle(0, 10)  # RF Hip
     # set_servo_angle(1, 10)  # RF Knee
-    set_servo_angle(2, 0, 1, 0)  # RR Hip
-    set_servo_angle(3, 0, 1, 0)  # RR Knee
+    set_servo_angle(2, 60, 1, 0)  # RR Hip
+    set_servo_angle(3, 45, 1, 0)  # RR Knee
     # # set_servo_angle(4, 180)  # LF Hip
     # # set_servo_angle(5, 180)  # LF Knee
     # # set_servo_angle(6, 180)  # LR Hip
