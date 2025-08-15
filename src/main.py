@@ -103,6 +103,7 @@ def move_all_legs(pos_list):
         # print(f"✔️ RF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(0, deg_hip_p , 1, 0)
         set_servo_angle(1, deg_knee_p , 1,  0 )
+        print( "hip", deg_hip_p, "knee", deg_knee_p)
     else:
         print("❌ RF: Ngoài tầm với")
 
@@ -112,7 +113,7 @@ def move_all_legs(pos_list):
     if ok:
         # print(f"✔️ RR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(2, deg_hip_p, 1, 0)
-        set_servo_angle(3, deg_knee_p, 1,0)
+        set_servo_angle(3, deg_knee_p, 1, 0)
         print( "hip", deg_hip_p, "knee", deg_knee_p)
     else:
         print("❌ RR: Ngoài tầm với")
@@ -140,7 +141,7 @@ def move_all_legs(pos_list):
 # ========================
 # 🧱 Các dáng chân
 # ========================
-start_pose = [(0, -15)] * 4   # Dáng khởi động, input 1
+start_pose = [(0, -10)] * 4   # Dáng khởi động, input 1
 sit_pose   = [(8, -8)]  * 4   # Dáng ngồi, input 2
 stand_pose = [(0, -16)] * 4  # Dáng đứng
 string = [(0, -10), (10, -10), (2, -10), (3, -10)]  # Dáng đi
@@ -148,8 +149,8 @@ string = [(0, -10), (10, -10), (2, -10), (3, -10)]  # Dáng đi
 # ▶️ Vòng lặp điều khiển
 # ========================
 if __name__ == "__main__":
-    # print("🚀 Đang đưa robot về vị trí khởi động...")  # 🟢 Tự động chuyển về start_pose
-    # move_all_legs(start_pose)
+    print("🚀 Đang đưa robot về vị trí khởi động...")  # 🟢 Tự động chuyển về start_pose
+    move_all_legs(start_pose)
     # while True:
     #     cmd = input("Nhấn (w=đứng, s=ngồi, x=bắt đầu, q=thoát): ").strip().lower()
     #     if cmd == "q":
@@ -168,8 +169,8 @@ if __name__ == "__main__":
     #         print("❗ Lệnh không hợp lệ. Dùng: w / s / x / q.")
     # set_servo_angle(0, 10)  # RF Hip
     # set_servo_angle(1, 10)  # RF Knee
-    set_servo_angle(2, 0, 1, 0)  # RR Hip
-    set_servo_angle(3, 0, 1, 0)  # RR Knee
+    # set_servo_angle(2, 0, 1, 0)  # RR Hip
+    # set_servo_angle(3, 0, 1, 0)  # RR Knee
     # set_servo_angle(4, 102,1,0)  # LF Hip
     # set_servo_angle(5, 125,1,0)  # LF Knee
     # set_servo_angle(6, 102, 1, 0)  # LR Hip
