@@ -96,7 +96,7 @@ def move_all_legs(pos_list):
     # pos_list chứa 4 tuple (x, y) cho từng chân: [RF, RR, LF, LR]
     legs = [
         ('RF', compute_theta_right, 0, 1),
-        ('RR', compute_theta_right, 2, 3),  
+        ('RR', compute_theta_right, 2, 3),
         ('LF', compute_theta_left, 4, 5),
         ('LR', compute_theta_left, 6, 7),
     ]
@@ -112,25 +112,32 @@ def move_all_legs(pos_list):
         set_servo_angle(knee_ch, deg_knee)
 
 # ========================
-# 🧱 Dáng ngồi & đứng
+# 🧱 Các dáng chân
 # ========================
-sit_pose   = [(0, -8)] * 4    # RF, RR, LF, LR
-stand_pose = [(0, -16)] * 4
+start_pose = [(0, -12)] * 4   # Dáng khởi động
+sit_pose   = [(0, -8)]  * 4   # Dáng ngồi
+stand_pose = [(0, -16)] * 4  # Dáng đứng
 
 # ========================
 # ▶️ Vòng lặp điều khiển
 # ========================
 if __name__ == "__main__":
+    print("🚀 Đang đưa robot về vị trí khởi động...")
+    move_all_legs(start_pose)  # 🟢 Tự động chuyển về start_pose
+
     while True:
-        cmd = input("Nhấn (w=đứng, s=ngồi, q=thoát): ").strip().lower()
+        cmd = input("Nhấn (w=đứng, s=ngồi, x=bắt đầu, q=thoát): ").strip().lower()
         if cmd == "q":
-            print(" Kết thúc.")
+            print("👋 Kết thúc.")
             break
         elif cmd == "s":
-            print("Đang chuyển sang dáng ngồi...")
+            print("🪑 Đang chuyển sang dáng ngồi...")
             move_all_legs(sit_pose)
         elif cmd == "w":
-            print("Đang đứng lên...")
+            print("📏 Đang đứng lên...")
             move_all_legs(stand_pose)
+        elif cmd == "x":
+            print("🟢 Đưa về vị trí bắt đầu...")
+            move_all_legs(start_pose)
         else:
-            print(" Lệnh không hợp lệ. Dùng: w / s / q.")
+            print("❗ Lệnh không hợp lệ. Dùng: w / s / x / q.")
