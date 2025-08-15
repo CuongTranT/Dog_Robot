@@ -62,7 +62,7 @@ def set_servo_angle(channel, angle_deg):
 # ========================
 # 🔧 Khởi tạo PCA9685
 # ========================
-pwm = Adafruit_PCA9685.PCA9685()
+pwm = Adafruit_PCA9685.PCA9685(busnum = 1)
 pwm.set_pwm_freq(60)  # Hz
 
 # ========================
