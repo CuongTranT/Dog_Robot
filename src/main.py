@@ -133,7 +133,7 @@ def move_all_legs(pos_list):
     x, y = pos_list[2]
     theta1, theta2, deg_hip, deg_knee, _, _, ok = compute_theta_left(x, y)
     if ok:
-        # print(f"✔️ LF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
+        # print(f" LF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(4, deg_hip, 1, 0)
         set_servo_angle(5, deg_knee, 1, 0)
         print( "hip1_T", deg_hip, "knee1", deg_knee)
@@ -144,7 +144,7 @@ def move_all_legs(pos_list):
     x, y = pos_list[3]
     theta1, theta2, deg_hip, deg_knee, _, _, ok = compute_theta_left(x, y)
     if ok:
-        # print(f"✔️ LR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
+        # print(f" LR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(6, deg_hip, 1.122911, 13.4366)
         set_servo_angle(7, deg_knee, 1.56205, -42.446)
     else:
@@ -195,14 +195,14 @@ def get_key():
     return ch
 
 # ========================
-# 🧱 Các dáng chân
+#  Các dáng chân
 # ========================
 start_pose = [(0, -18)] * 4   # Dáng khởi động, input 1 5,-15
 sit_pose   = [(8, -8)]  * 4   # Dáng ngồi, input 2
 stand_pose = [(0, -16)] * 4  # Dáng đứng
 walk_pose = [(0, -10), (10, -10), (2, -10), (3, -10)]  # Dáng đi
 # ========================
-# ▶️ Vòng lặp điều khiển
+# Main function
 # ========================
 def main():
     print("🤖 Robot khởi động về tư thế ban đầu...")
@@ -249,7 +249,7 @@ def main():
     finally:
         GPIO.cleanup()
 
-# ========== CHẠY CHÍNH ==========
+# ==========main ==========
 if __name__ == "__main__":
     main()
 
