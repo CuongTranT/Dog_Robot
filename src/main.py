@@ -111,8 +111,8 @@ def move_all_legs(pos_list):
     _, _, deg_hip_p, deg_knee_p, _, _, ok = compute_theta_right(x, y)
     if ok:
         # print(f"✔️ RR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
-        set_servo_angle(2, deg_hip_p, 0.83, 5)
-        set_servo_angle(3, deg_knee_p,0.83, 5)
+        set_servo_angle(2, deg_hip_p, 1, 0)
+        set_servo_angle(3, deg_knee_p,1, 0)
         print( "hip1_p", deg_hip_p, "knee1", deg_knee_p)
     else:
         print("❌ RR: Ngoài tầm với")
