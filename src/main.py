@@ -150,7 +150,7 @@ string = [(0, -10), (10, -10), (2, -10), (3, -10)]  # Dáng đi
 # ========================
 if __name__ == "__main__":
     print("🚀 Đang đưa robot về vị trí khởi động...")  # 🟢 Tự động chuyển về start_pose
-    move_all_legs(stand_pose)
+    move_all_legs(start_pose)
     # while True:
     #     cmd = input("Nhấn (w=đứng, s=ngồi, x=bắt đầu, q=thoát): ").strip().lower()
     #     if cmd == "q":
