@@ -146,8 +146,8 @@ sit_pose   = [(8, -8)]  * 4   # Dáng ngồi, input 2
 stand_pose = [(0, -16)] * 4  # Dáng đứng
 string = [(0, -10), (10, -10), (2, -10), (3, -10)]  # Dáng đi
 # ========================
-▶️ Vòng lặp điều khiển
-========================
+# ▶️ Vòng lặp điều khiển
+# ========================
 if __name__ == "__main__":
     print("🚀 Đang đưa robot về vị trí khởi động...")  # 🟢 Tự động chuyển về start_pose
     move_all_legs(start_pose)
