@@ -148,9 +148,9 @@ string = [(0, -10), (10, -10), (2, -10), (3, -10)]  # Dáng đi
 # ========================
 # ▶️ Vòng lặp điều khiển
 # ========================
-if __name__ == "__main__":
-    print("🚀 Đang đưa robot về vị trí khởi động...")  # 🟢 Tự động chuyển về start_pose
-    move_all_legs(start_pose)
+# if __name__ == "__main__":
+#     print("🚀 Đang đưa robot về vị trí khởi động...")  # 🟢 Tự động chuyển về start_pose
+#     move_all_legs(start_pose)
     # while True:
     #     cmd = input("Nhấn (w=đứng, s=ngồi, x=bắt đầu, q=thoát): ").strip().lower()
     #     if cmd == "q":
@@ -197,4 +197,17 @@ if __name__ == "__main__":
 
 #         except ValueError:
 #             print("⚠️ Nhập sai định dạng! Hãy thử lại.")
+if __name__ == "__main__":
+    print("🚀 Điều khiển tất cả chân robot với cùng toạ độ")
+
+    try:
+        x = float(input("Nhập X (cm): "))
+        y = float(input("Nhập Y (cm): "))
+
+        # pos_list gồm 4 chân: [RF, RR, LF, LR]
+        pos_list = [(x, y)] * 4
+        move_all_legs(pos_list)
+
+    except Exception as e:
+        print("⚠️ Lỗi nhập dữ liệu:", e)
 
