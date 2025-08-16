@@ -101,8 +101,8 @@ def move_all_legs(pos_list):
     _, _, deg_hip_p, deg_knee_p, _, _, ok = compute_theta_right(x, y)
     if ok:
         # print(f"✔️ RF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
-        set_servo_angle(0, deg_hip_p , 0.78, 6.39)
-        set_servo_angle(1, deg_knee_p , -1.35,  120.93 )
+        set_servo_angle(0, deg_hip_p , 0.786821, 6.395377)
+        set_servo_angle(1, deg_knee_p , -1.34892,  120.9353 )
     else:
         print("❌ RF: Ngoài tầm với")
 
@@ -111,8 +111,8 @@ def move_all_legs(pos_list):
     _, _, deg_hip_p, deg_knee_p, _, _, ok = compute_theta_right(x, y)
     if ok:
         # print(f"✔️ RR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
-        set_servo_angle(2, deg_hip_p, 0.87, 8.68)
-        set_servo_angle(3, deg_knee_p,-0.89, 98.95 )
+        set_servo_angle(2, deg_hip_p, 0.877059, 8.688222)
+        set_servo_angle(3, deg_knee_p,-0.89928, 98.95683 )
         print( "hip1_p", deg_hip_p, "knee1", deg_knee_p)
     else:
         print("❌ RR: Ngoài tầm với")
@@ -133,8 +133,8 @@ def move_all_legs(pos_list):
     theta1, theta2, deg_hip, deg_knee, _, _, ok = compute_theta_left(x, y)
     if ok:
         # print(f"✔️ LR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
-        set_servo_angle(6, deg_hip, 0.852, 16.123)
-        set_servo_angle(7, deg_knee, 0.91, 6.791)
+        set_servo_angle(6, deg_hip, 0.85207, 16.12389)
+        set_servo_angle(7, deg_knee, 0.910072, 6.791367)
     else:
         print("❌ LR: Ngoài tầm với")
 
