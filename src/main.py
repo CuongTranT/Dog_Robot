@@ -96,23 +96,23 @@ pwm.set_pwm_freq(60)
 def move_all_legs(pos_list):
     # pos_list = [ (x_RF, y_RF), (x_RR, y_RR), (x_LF, y_LF), (x_LR, y_LR) ]
     
-    # === Chân phải trước (RF) ===
+    # === Chân phải sau (RR) ===
     x, y = pos_list[0]
     _, _, deg_hip_p, deg_knee_p, _, _, ok = compute_theta_right(x, y)
     if ok:
         # print(f"✔️ RF: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
-        set_servo_angle(0, deg_hip_p , 1, 0)
-        set_servo_angle(1, deg_knee_p , 1,  0 )
+        set_servo_angle(0, deg_hip_p , 0.78, 6.39)
+        set_servo_angle(1, deg_knee_p , -1.35,  120.93 )
     else:
         print("❌ RF: Ngoài tầm với")
 
-    # === Chân phải sau (RR) ===
+    # === Chân phải sau (RF) ===
     x, y = pos_list[1]
     _, _, deg_hip_p, deg_knee_p, _, _, ok = compute_theta_right(x, y)
     if ok:
         # print(f"✔️ RR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
-        set_servo_angle(2, deg_hip_p, 1, 0)
-        set_servo_angle(3, deg_knee_p,1, 0)
+        set_servo_angle(2, deg_hip_p, 0.87, 8.68)
+        set_servo_angle(3, deg_knee_p,-0.89, 98.95 )
         print( "hip1_p", deg_hip_p, "knee1", deg_knee_p)
     else:
         print("❌ RR: Ngoài tầm với")
@@ -133,24 +133,24 @@ def move_all_legs(pos_list):
     theta1, theta2, deg_hip, deg_knee, _, _, ok = compute_theta_left(x, y)
     if ok:
         # print(f"✔️ LR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
-        set_servo_angle(6, deg_hip, 1, 0)
-        set_servo_angle(7, deg_knee, 1, 0)
+        set_servo_angle(6, deg_hip, 0.852, 16.123)
+        set_servo_angle(7, deg_knee, 0.91, 6.791)
     else:
         print("❌ LR: Ngoài tầm với")
 
 # ========================
 # 🧱 Các dáng chân
 # ========================
-start_pose = [(5, -15)] * 4   # Dáng khởi động, input 1
+start_pose = [(0, -10)] * 4   # Dáng khởi động, input 1 5,-15
 sit_pose   = [(8, -8)]  * 4   # Dáng ngồi, input 2
 stand_pose = [(0, -16)] * 4  # Dáng đứng
 string = [(0, -10), (10, -10), (2, -10), (3, -10)]  # Dáng đi
 # ========================
 # ▶️ Vòng lặp điều khiển
 # ========================
-# if __name__ == "__main__":
-#     print("🚀 Đang đưa robot về vị trí khởi động...")  # 🟢 Tự động chuyển về start_pose
-#     move_all_legs(start_pose)
+if __name__ == "__main__":
+    print("🚀 Đang đưa robot về vị trí khởi động...")  # 🟢 Tự động chuyển về start_pose
+    move_all_legs(start_pose)
     # while True:
     #     cmd = input("Nhấn (w=đứng, s=ngồi, x=bắt đầu, q=thoát): ").strip().lower()
     #     if cmd == "q":
@@ -175,26 +175,26 @@ string = [(0, -10), (10, -10), (2, -10), (3, -10)]  # Dáng đi
     # set_servo_angle(5, 125,1,0)  # LF Knee
     # set_servo_angle(6, 102, 1, 0)  # LR Hip
     # set_servo_angle(7, 128, 1, 0)  # LR Knee
-if __name__ == "__main__":
-    while True:
-        try:
-            print("\n📟 Điều khiển servo thủ công:")
-            ch = int(input("🔘 Nhập kênh servo (0–15, -1 để thoát): "))
-            if ch == -1:
-                print("👋 Kết thúc chương trình.")
-                break
-            if not 0 <= ch <= 15:
-                print("❌ Kênh không hợp lệ! Chọn từ 0 đến 15.")
-                continue
+# if __name__ == "__main__":
+#     while True:
+#         try:
+#             print("\n📟 Điều khiển servo thủ công:")
+#             ch = int(input("🔘 Nhập kênh servo (0–15, -1 để thoát): "))
+#             if ch == -1:
+#                 print("👋 Kết thúc chương trình.")
+#                 break
+#             if not 0 <= ch <= 15:
+#                 print("❌ Kênh không hợp lệ! Chọn từ 0 đến 15.")
+#                 continue
 
-            angle = float(input("🎯 Nhập góc (0–180 độ): "))
-            if not 0 <= angle <= 180:
-                print("❌ Góc không hợp lệ! Nhập từ 0 đến 180.")
-                continue
+#             angle = float(input("🎯 Nhập góc (0–180 độ): "))
+#             if not 0 <= angle <= 180:
+#                 print("❌ Góc không hợp lệ! Nhập từ 0 đến 180.")
+#                 continue
 
-            set_servo_angle(ch, angle, 1, 0)  # Mặc định w=1, b=0
-            print(f"✅ Đã điều khiển servo kênh {ch} đến {angle:.1f}°")
+#             set_servo_angle(ch, angle, 1, 0)  # Mặc định w=1, b=0
+#             print(f"✅ Đã điều khiển servo kênh {ch} đến {angle:.1f}°")
 
-        except ValueError:
-            print("⚠️ Nhập sai định dạng! Hãy thử lại.")
+#         except ValueError:
+#             print("⚠️ Nhập sai định dạng! Hãy thử lại.")
 
