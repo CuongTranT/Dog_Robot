@@ -134,7 +134,7 @@ def move_all_legs(pos_list):
     if ok:
         # print(f"✔️ LR: Hip={deg_hip:.1f}°, Knee={deg_knee:.1f}°")
         set_servo_angle(6, deg_hip, 1.122911, 13.4366)
-        set_servo_angle(7, deg_knee, 1.44964, -33.9568)
+        set_servo_angle(7, deg_knee, 1.56205, -42.446)
     else:
         print("❌ LR: Ngoài tầm với")
 
@@ -197,7 +197,7 @@ if __name__ == "__main__":
 
         except ValueError:
             print("⚠️ Nhập sai định dạng! Hãy thử lại.")
-            
+
 # if __name__ == "__main__":
 #     print("🚀 Điều khiển tất cả chân robot với cùng toạ độ")
 
